@@ -45,13 +45,13 @@ public class Intake extends SubsystemBase {
 
   public void runIntake(){
     //intakeMotor.setInverted(false);
-    intakeMotor.set(0.75);
+    intakeMotor.set(1);
     //intakSolenoid.set(true);
   }
 
   public void runIntakeReverse(){
     //intakeMotor.setInverted(true);
-    intakeMotor.set(-0.75);
+    intakeMotor.set(-1);
     //motor.set(-1);
   }
 
@@ -80,14 +80,14 @@ public class Intake extends SubsystemBase {
     } else {
       stopIntake();
     }
-
+    
     if (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD)) {
       intakeOut();
       //System.out.println("intake sols forward");
     }
     if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK)) {
       intakeIn();
-      //System.out.println("intake sols back");
+      //System.out.println("intake sols back"); 
     }
   }
 }

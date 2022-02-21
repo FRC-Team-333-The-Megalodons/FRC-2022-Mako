@@ -90,11 +90,19 @@ public class Chassis extends SubsystemBase {
     solenoids.set(Value.kReverse);
   }
 
+  public void autoTrans(){
+    if(joystick.getY() < .4){
+      low();
+    }else if(joystick.getY() >= .8){
+      high();
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());
-    hub.enableCompressorAnalog(100, 120);
+    hub.enableCompressorAnalog(100, 110);
 
     if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){
       low();
