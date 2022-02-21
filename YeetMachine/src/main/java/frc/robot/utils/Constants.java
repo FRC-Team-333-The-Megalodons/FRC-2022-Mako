@@ -17,13 +17,13 @@ public final class Constants {
     public static class DeviceIDs {
 
         //chassis IDS
-        public static final int LEFT_LEADER_ID = 2;
-        public static final int LEFT_FOLLOWER_ID = 3;
-        public static final int LEFT_FOLLOWER2_ID = -3;
+        public static final int LEFT_LEADER_ID = 1;
+        public static final int LEFT_FOLLOWER_ID = 2;
+        public static final int LEFT_FOLLOWER2_ID = 3;
 
-        public static final int RIGHT_LEADER_ID = 5;
-        public static final int RIGHT_FOLLOWER_ID = 6;
-        public static final int RIGHT_FOLLOWER2_ID = -6;
+        public static final int RIGHT_LEADER_ID = 4;
+        public static final int RIGHT_FOLLOWER_ID = 5;
+        public static final int RIGHT_FOLLOWER2_ID = 6;
 
         //intake ID
         public static final int INTAKE_MOTOR_ID = 10;//10
@@ -31,11 +31,23 @@ public final class Constants {
         //joysticks
         public static final int JOYSTICK_PORT = 0;
 
+        //solenoids
+        public static final int INTAKE_SOLENOID = 0;
+        public static final int CATAPULT_SOLENOID = 2;
+        public static final int DRIVETRAIN_SOLENOID_LOW = 1;
+        public static final int DRIVETRAIN_SOLENOID_HIGH = 7;
+
     }
 
     public static class JoyStickButtons {
         //inatke
         public static final int INTAKE_RUN = 2;
-        public static final int INTAKE_REVERSE = 4;
+        public static final int INTAKE_REVERSE = 5;
+        public static final int INTAKE_FORWARD = 3;
+        public static final int INTAKE_BACK = 4;
+        public static final int CATAPULT = 1;
+        public static final int CATAPULT_DOWN = 10;
+        public static final int LOW_GEAR = 8;
+        public static final int HIGH_GEAR = 9;
     }
 }

@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
@@ -24,7 +25,9 @@ public class Intake extends SubsystemBase {
 
   Joystick joystick;
 
-  Solenoid intakSolenoid;
+  PneumaticHub hub;
+
+  Solenoid intakeSolenoid;
 
   public Intake() {
 
@@ -33,7 +36,11 @@ public class Intake extends SubsystemBase {
 
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
 
-    //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
+    //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
+
+    hub = new PneumaticHub(21);
+
+    intakeSolenoid = hub.makeSolenoid(0);
   }
 
   public void runIntake(){
@@ -50,8 +57,15 @@ public class Intake extends SubsystemBase {
 
   public void stopIntake() {
     intakeMotor.set(0);
-    //intakSolenoid.set(false);
     //motor.set(0);
+  }
+
+  public void intakeOut() {
+    intakeSolenoid.set(true);
+  }
+
+  public void intakeIn() {
+    intakeSolenoid.set(false);
   }
 
   @Override
@@ -59,12 +73,21 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
     if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN)){
       runIntake();
-      System.out.println("***");
+      //System.out.println("intaking balls");
     }else if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE)){
       runIntakeReverse();
-      System.out.println("&&&&0");
+      //System.out.println("intake back");
     } else {
       stopIntake();
+    }
+
+    if (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD)) {
+      intakeOut();
+      //System.out.println("intake sols forward");
+    }
+    if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK)) {
+      intakeIn();
+      //System.out.println("intake sols back");
     }
   }
 }

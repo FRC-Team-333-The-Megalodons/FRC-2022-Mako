@@ -5,19 +5,23 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.utils.Constants;
 
 public class Catapult extends SubsystemBase {
   /** Creates a new Catapult. */
 
+  PneumaticHub hub;
   Solenoid catapult;
   Joystick joystick;
 
   public Catapult() {
-    //catapult = new Solenoid(PneumaticsModuleType.REVPH, 0);
+    hub = new PneumaticHub(21);
+    catapult = hub.makeSolenoid(2);
     joystick = new Joystick(0);
   }
 
@@ -31,13 +35,15 @@ public class Catapult extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    /*
-    if(joystick.getRawButton(5)){//TODO set constants
+    //This method will be called once per scheduler run
+    if(joystick.getRawButton(Constants.JoyStickButtons.CATAPULT)){//TODO set constants
       pewpew();
-    }else{
-      nopewpew();
+      //System.out.println("pew pew");
     }
-    */
-  }
+    if(joystick.getRawButton(Constants.JoyStickButtons.CATAPULT_DOWN)){
+      nopewpew();
+      //System.out.println("no pew pew");
+    }
+   }
 }
+
