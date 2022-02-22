@@ -20,7 +20,7 @@ public class Catapult extends SubsystemBase {
   Joystick joystick;
 
   public Catapult() {
-    hub = new PneumaticHub(21);
+    hub = new PneumaticHub(Constants.DeviceIDs.HUB_PORT);
     catapult = hub.makeSolenoid(2);
     joystick = new Joystick(0);
   }

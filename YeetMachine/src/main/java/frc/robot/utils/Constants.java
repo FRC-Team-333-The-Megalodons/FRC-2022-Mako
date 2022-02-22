@@ -14,6 +14,8 @@ package frc.robot.utils;
  */
 public final class Constants {
 
+    public static final boolean xboxDrive = false;
+
     public static class DeviceIDs {
 
         //chassis IDS
@@ -30,8 +32,10 @@ public final class Constants {
         
         //joysticks
         public static final int JOYSTICK_PORT = 0;
+        public static final int CONTROLLER_PORT = 1;
 
         //solenoids
+        public static final int HUB_PORT = 21;
         public static final int INTAKE_SOLENOID = 0;
         public static final int CATAPULT_SOLENOID = 2;
         public static final int DRIVETRAIN_SOLENOID_LOW = 1;

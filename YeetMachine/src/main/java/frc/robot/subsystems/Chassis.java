@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,9 +37,10 @@ public class Chassis extends SubsystemBase {
 
   //JoyStick delcaration
   Joystick joystick;
+  XboxController controller;
 
   //transmission and compressor
-  PneumaticHub hub = new PneumaticHub(21);
+  PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.HUB_PORT);
   DoubleSolenoid solenoids;
 
   public Chassis() {
@@ -78,6 +80,7 @@ public class Chassis extends SubsystemBase {
     differentialDrive = new DifferentialDrive(leftLeader,rightLeader);
 
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);//b = false a = true, low = true, high = false
+    controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
 
     solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
   }
@@ -101,15 +104,19 @@ public class Chassis extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());
+    if(Constants.xboxDrive){
+      differentialDrive.arcadeDrive(controller.getRightX(), -controller.getLeftY());//joystick.getX(), -joystick.getY()
+    }else{
+      differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
+    }
     hub.enableCompressorAnalog(100, 110);
 
-    if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){
+    if((Constants.xboxDrive && controller.getAButton()) || joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)
       low();
       //System.out.println("low");
     }
 
-    if(joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)){
+    if((Constants.xboxDrive && controller.getYButton()) || joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)
       high();
       //System.out.println("high");
     }
