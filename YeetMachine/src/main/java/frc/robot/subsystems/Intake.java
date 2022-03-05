@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWM;
@@ -38,6 +39,7 @@ public class Intake extends SubsystemBase {
 
   DoubleSolenoid intakeSols;
   SmartDashboardWrapper dashboard;
+  DigitalInput limitSwitch;
 
   private final double INTAKE_SPEED_DEFAULT = 0.65;
   private double INTAKE_SPEED = INTAKE_SPEED_DEFAULT;
@@ -47,14 +49,14 @@ public class Intake extends SubsystemBase {
   private double HOLDER_SPEED = HOLDER_SPEED_DEFAULT;
   private final String HOLDER_SPEED_KEY = "Holder Speed";
 
-  public Intake() {
+  public Intake(Joystick joystick_, XboxController controller_, DigitalInput limitSwitch_) {
+    joystick = joystick_;
+    controller = controller_;
+    limitSwitch = limitSwitch_;
 
     intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushed);
     holderMotor = new CANSparkMax(Constants.DeviceIDs.HOLDER_ID,MotorType.kBrushed);//TODO do constant
     //intakeMotor.setInverted(false);
-
-    joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
-    controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);;
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
 
@@ -104,16 +106,66 @@ public class Intake extends SubsystemBase {
     intakeSols.set(Value.kReverse);;
   }
 
+  public boolean isIntakeButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      // Intake is the Right Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
+      return controller.getRightTriggerAxis() >= 0.70;
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN);
+    }
+  }
+
+  public boolean isIntakeReverseButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      // Intake Reverse (outtake?) is Left Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
+      return controller.getLeftTriggerAxis() >= 0.70;
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE);
+    }
+  }
+
+  public boolean isExtendIntakeButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      return controller.getXButton();
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD);
+    }
+  }
+
+  public boolean isRetractIntakeButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      return controller.getBButton();
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK);
+    }
+  }
+
   @Override
   public void periodic() {
     INTAKE_SPEED = dashboard.getNumber(INTAKE_SPEED_KEY, INTAKE_SPEED_DEFAULT);
     HOLDER_SPEED = dashboard.getNumber(HOLDER_SPEED_KEY, HOLDER_SPEED_DEFAULT);
     // This method will be called once per scheduler run
-    if((Constants.twoDriverMode && controller.getRightBumper()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN) && !Constants.twoDriverMode)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN
+    if(isIntakeButtonPressed()) {
       runIntake();
       runHolder();
       //System.out.println("intaking balls");
-    }else if((Constants.twoDriverMode && controller.getLeftTriggerAxis() > 0) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE) && !Constants.twoDriverMode)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE
+    }else if(isIntakeReverseButtonPressed()) {
       runIntakeReverse();
       runHolderReverse();
       //System.out.println("intake back");
@@ -122,11 +174,10 @@ public class Intake extends SubsystemBase {
       stopHolder();
     }
     
-    if ((Constants.twoDriverMode && controller.getAButton()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD) && Constants.twoDriverMode)) {
+    if (isExtendIntakeButtonPressed()) {
       intakeOut();
       //System.out.println("intake sols forward");
-    }
-    if((Constants.twoDriverMode && controller.getBButton()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK) && Constants.twoDriverMode)) {
+    } else if (isRetractIntakeButtonPressed()) {
       intakeIn();
       //System.out.println("intake sols back"); 0
       

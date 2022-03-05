@@ -30,16 +30,16 @@ public class Catapult extends SubsystemBase {
   XboxController controller;
   DigitalInput limitSwitch;
   SmartDashboardWrapper dashboard;
-
+  
   private final double YEETER_SPEED_DEFAULT = 0.3;
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 
-  public Catapult() {
+  public Catapult(Joystick joystick_, XboxController controller_, DigitalInput limitSwitch_) {
+    joystick = joystick_;
+    controller = controller_;
+    limitSwitch = limitSwitch_;
     yeeter = new CANSparkMax(Constants.DeviceIDs.CATAPULT_ID,MotorType.kBrushless);
-    joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
-    controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
-    limitSwitch = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
     dashboard = new SmartDashboardWrapper(this);
     dashboard.putNumber(YEETER_SPEED_KEY, YEETER_SPEED);
   }
@@ -53,6 +53,10 @@ public class Catapult extends SubsystemBase {
     yeeter.set(0.0);
   }
 
+  public void paintDashboard()
+  {
+    dashboard.putBoolean("Yeeter Down", limitSwitch.get());
+  }
 
   @Override
   public void periodic() {
@@ -66,7 +70,6 @@ public class Catapult extends SubsystemBase {
      */
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
-    dashboard.putBoolean("Yeeter Home", limitSwitch.get());
 
     if((!Constants.twoDriverMode && controller.getRightTriggerAxis() > 0) || (joystick.getRawButton(Constants.JoyStickButtons.CATAPULT) && !Constants.twoDriverMode)){
       pewpew();

@@ -6,6 +6,7 @@ package frc.robot;
 
 import javax.xml.catalog.Catalog;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.utils.Constants.JoyStickButtons;
+import frc.robot.utils.Constants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,14 +31,21 @@ public class RobotContainer {
   Intake intake;
   Catapult catapult;
   Climber climber;
-
+  Joystick joystick;
+  XboxController controller;
+  DigitalInput limitSwitch;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
-    chassis = new Chassis();
-    intake = new Intake();
-    catapult = new Catapult();
-    climber = new Climber();
+    joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
+    controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
+    limitSwitch = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
+
+    // Instantiate robot parts with shared classes
+    chassis = new Chassis(joystick, controller);
+    intake = new Intake(joystick, controller, limitSwitch);
+    catapult = new Catapult(joystick, controller, limitSwitch);
+    climber = new Climber(joystick, controller);
     configureButtonBindings();
   }
 
@@ -68,5 +77,6 @@ public class RobotContainer {
   public void paintDashboard()
   {
     chassis.paintDashboard();
+    catapult.paintDashboard();
   }
 }

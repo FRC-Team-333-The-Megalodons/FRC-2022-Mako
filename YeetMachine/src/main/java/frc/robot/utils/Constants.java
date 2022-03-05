@@ -17,7 +17,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public final class Constants {
 
     public static final boolean xboxDrive = false;
-    public static final boolean twoDriverMode = false;
+    public static final boolean twoDriverMode = true;
 
     public static class DeviceIDs {
 
@@ -104,11 +104,13 @@ public final class Constants {
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
-        // Below values are from manual testing with pushing the robot the length of a meter stick. Note that Eman was on the right side of the robot, so the Right Leader will be most precise
+        // Below values are from manual testing with pushing the robot the length of a 24" stick. Note that Eman was on the right side of the robot, so the Right Leader will be most precise
         // First run:   Left Leader = 8.619077, Right Leader = -8.785745
         // Second run:  Left Leader = 8.500028, Right Leader = -8.666696
         // Third run:   Left Leader = 8.357168, Right Leader = -8.761935
         // Average: Left Leader = 8.492091, Right Leader = 8.738125333333
-        public static final double kHallEffectUnitsPerMeter = 8.74;
+        public static final double k_24inches_to_meters = 0.0254*24;
+        public static final double k_hallEffectUnitsPer24Inches = 8.74;
+        public static final double kHallEffectUnitsPerMeter = 8.74/k_24inches_to_meters;
     }
 }

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.utils.Constants;
 
@@ -57,7 +58,9 @@ public class Chassis extends SubsystemBase {
 
   SmartDashboardWrapper dashboard;
 
-  public Chassis() {
+  public Chassis(Joystick joystick_, XboxController controller_) {
+    joystick = joystick_;
+    controller = controller_;
     dashboard = new SmartDashboardWrapper(this);
     //motor controller declarations
     leftLeader = new CANSparkMax(Constants.DeviceIDs.LEFT_LEADER_ID, MotorType.kBrushless);
@@ -82,9 +85,9 @@ public class Chassis extends SubsystemBase {
     rightFollowerEnc = rightFollower.getEncoder();
     rightFollower2Enc = rightFollower2.getEncoder();
 
-    leftLeaderEnc.setPositionConversionFactor(Constants.RobotValues.kHallEffectUnitsPerMeter);
-    rightLeaderEnc.setPositionConversionFactor(Constants.RobotValues.kHallEffectUnitsPerMeter); // TODO: CHeck if we should use different numbers for left & right.
-
+    leftLeaderEnc.setPositionConversionFactor(1/Constants.RobotValues.kHallEffectUnitsPerMeter);
+    rightLeaderEnc.setPositionConversionFactor(1/Constants.RobotValues.kHallEffectUnitsPerMeter); // TODO: CHeck if we should use different numbers for left & right.
+    
     //setting inverts
     leftLeader.setInverted(false);
     leftFollower.setInverted(false);
@@ -103,9 +106,6 @@ public class Chassis extends SubsystemBase {
 
     //dif drive delcaration
     differentialDrive = new DifferentialDrive(leftLeader,rightLeader);
-
-    joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);//b = false a = true, low = true, high = false
-    controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
 
     solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
 

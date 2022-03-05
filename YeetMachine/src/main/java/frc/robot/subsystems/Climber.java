@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
 
@@ -17,12 +18,14 @@ public class Climber extends SubsystemBase {
   CANSparkMax leftClimber;
   CANSparkMax rightClimber;
   Joystick joystick;
+  XboxController controller;
 
   private final double CLIMB_SPEED = 1.0;
 
   /** Creates a new Climber. */
-  public Climber() {
-    joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
+  public Climber(Joystick joystick_, XboxController controller_) {
+    joystick = joystick_;
+    controller = controller_;
 
     leftClimber = new CANSparkMax(Constants.DeviceIDs.LEFT_CLIMBER_ID, MotorType.kBrushless);
     rightClimber = new CANSparkMax(Constants.DeviceIDs.RIGHT_CLIMBER_ID, MotorType.kBrushless);
@@ -46,12 +49,36 @@ public class Climber extends SubsystemBase {
     rightClimber.set(0.0);
   }
 
+  public boolean isRaiseClimberButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      return controller.getYButton();
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.CLIMBER_UP);
+    }
+  }
+
+  public boolean isLowerClimberButtonPressed()
+  {
+    if (Constants.twoDriverMode)
+    {
+      return controller.getAButton();
+    }
+    else
+    {
+      return joystick.getRawButton(Constants.JoyStickButtons.CLIMBER_DOWN);
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(joystick.getRawButton(Constants.JoyStickButtons.CLIMBER_UP)) {
+    if(isRaiseClimberButtonPressed()) {
       climbUp();
-    } else if (joystick.getRawButton(Constants.JoyStickButtons.CLIMBER_DOWN)) {
+    } else if (isLowerClimberButtonPressed()) {
       climbDown();
     } else {
       stopClimb();  
