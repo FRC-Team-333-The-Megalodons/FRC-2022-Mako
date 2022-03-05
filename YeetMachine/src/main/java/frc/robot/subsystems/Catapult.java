@@ -71,6 +71,8 @@ public class Catapult extends SubsystemBase {
     return joystick.getRawButton(Constants.JoyStickButtons.CATAPULT);
   }
 
+  private boolean hasLimitSwitchBeenPressed = false;
+
   @Override
   public void periodic() {
     //This method will be called once per scheduler run
@@ -84,7 +86,7 @@ public class Catapult extends SubsystemBase {
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
 
-
+    /* "Manual" behavior 
     if(isFireButtonPressed()) {
       pewpew();
     }else{
@@ -92,13 +94,26 @@ public class Catapult extends SubsystemBase {
     }
     
 
-    /*
-    if(!isLimitSwitchPressed() || isFireButtonPressed()) {
-      pewpew();
-    }else {
-      nopewpew();
+
+    /* Automatic behavior -
+     * The Limit Switch acts as a Circuit Breaker - once it's been pressed, the Catapult motor won't go anymore 
+     * until the Fire Button is pressed. 
+     */
+
+    if (isLimitSwitchPressed()) {
+      hasLimitSwitchBeenPressed = true;
     }
-    */
+
+    if (isFireButtonPressed()) {
+      hasLimitSwitchBeenPressed = false;
+    }
+    
+    if(hasLimitSwitchBeenPressed) {
+      nopewpew();
+    }else {
+      pewpew();
+    }
+    
     
    }
 }

@@ -17,7 +17,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public final class Constants {
 
     public static final boolean xboxDrive = false;
-    public static final boolean twoDriverMode = true;
+    public static final boolean twoDriverMode = false;
 
     public static class DeviceIDs {
 
