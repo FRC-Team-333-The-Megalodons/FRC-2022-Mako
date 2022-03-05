@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Catapult;
 import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.utils.Constants.JoyStickButtons;
 
@@ -27,6 +28,7 @@ public class RobotContainer {
   Chassis chassis;
   Intake intake;
   Catapult catapult;
+  Climber climber;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -34,6 +36,7 @@ public class RobotContainer {
     chassis = new Chassis();
     intake = new Intake();
     catapult = new Catapult();
+    climber = new Climber();
     configureButtonBindings();
   }
 

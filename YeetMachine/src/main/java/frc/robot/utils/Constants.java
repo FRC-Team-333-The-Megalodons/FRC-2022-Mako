@@ -15,6 +15,7 @@ package frc.robot.utils;
 public final class Constants {
 
     public static final boolean xboxDrive = false;
+    public static final boolean twoDriverMode = false;
 
     public static class DeviceIDs {
 
@@ -28,24 +29,39 @@ public final class Constants {
         public static final int RIGHT_FOLLOWER2_ID = 6;
 
         //intake ID
-        public static final int INTAKE_MOTOR_ID = 10;//10
+        public static final int INTAKE_MOTOR_ID = 10;
+        public static final int HOLDER_ID = 0;
+
+        // catapult ID
+        public static final int CATAPULT_ID = 7;
+
+        // climber ID
+        public static final int LEFT_CLIMBER_ID = 8;
+        public static final int RIGHT_CLIMBER_ID = 9;
         
         //joysticks
         public static final int JOYSTICK_PORT = 0;
         public static final int CONTROLLER_PORT = 1;
 
         //solenoids
-        public static final int HUB_PORT = 21;
-        public static final int INTAKE_SOLENOID = 0;
-        public static final int CATAPULT_SOLENOID = 2;
-        public static final int DRIVETRAIN_SOLENOID_LOW = 1;
+        public static final int INTAKE_SOLENOID1 = 0;
+        public static final int INTAKE_SOLENOID2 = 1;
+        //public static final int CATAPULT_SOLENOID = 2;
+        public static final int DRIVETRAIN_SOLENOID_LOW = 6;
         public static final int DRIVETRAIN_SOLENOID_HIGH = 7;
+
+        // Modules
+        public static final int POWER_DISTRIBUTION_BOARD_PORT = 24;
+        public static final int PNEMATIC_HUB = 22;
+
+        // Sensors
+        public static final int LIMIT_SWITCH = 9;
 
     }
 
     public static class JoyStickButtons {
-        //inatke
-        public static final int INTAKE_RUN = 2;
+        // buttons for Thrustmaster
+        /*public static final int INTAKE_RUN = 2;
         public static final int INTAKE_REVERSE = 5;
         public static final int INTAKE_FORWARD = 3;
         public static final int INTAKE_BACK = 4;
@@ -53,5 +69,19 @@ public final class Constants {
         public static final int CATAPULT_DOWN = 10;
         public static final int LOW_GEAR = 8;
         public static final int HIGH_GEAR = 9;
+        public static final int CLIMBER_UP = 14;
+        public static final int CLIMBER_DOWN = 15;*/
+
+        //buttons for x-pro
+        public static final int CATAPULT = 1;//driver
+        public static final int INTAKE_RUN = 2;//op
+        public static final int INTAKE_REVERSE = 5;//op
+        public static final int INTAKE_FORWARD = 4;//op
+        public static final int INTAKE_BACK = 3;//op
+        public static final int LOW_GEAR = 7;//driver
+        public static final int HIGH_GEAR = 8;//driver
+        public static final int CLIMBER_UP = 11;//op
+        public static final int CLIMBER_DOWN = 12;//op
+        public static final int CATAPULT_DOWN = 10;//driver
     }
 }

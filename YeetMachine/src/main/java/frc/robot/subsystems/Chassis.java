@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
 
@@ -40,7 +42,7 @@ public class Chassis extends SubsystemBase {
   XboxController controller;
 
   //transmission and compressor
-  PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.HUB_PORT);
+  PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
   DoubleSolenoid solenoids;
 
   public Chassis() {
@@ -104,22 +106,23 @@ public class Chassis extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    
     if(Constants.xboxDrive){
       differentialDrive.arcadeDrive(controller.getRightX(), -controller.getLeftY());//joystick.getX(), -joystick.getY()
     }else{
       differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
     }
+
     hub.enableCompressorAnalog(100, 110);
 
-    if((Constants.xboxDrive && controller.getAButton()) || joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)
+    if((Constants.xboxDrive && controller.getYButton() && !Constants.twoDriverMode) || joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)
       low();
       //System.out.println("low");
     }
 
-    if((Constants.xboxDrive && controller.getYButton()) || joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)
+    if((Constants.xboxDrive && controller.getXButton() && !Constants.twoDriverMode) || joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)
       high();
       //System.out.println("high");
     }
-
   }
 }

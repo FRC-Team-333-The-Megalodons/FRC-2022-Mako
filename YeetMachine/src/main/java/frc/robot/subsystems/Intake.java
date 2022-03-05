@@ -10,12 +10,14 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
@@ -26,17 +28,22 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
 
   CANSparkMax intakeMotor;
+  CANSparkMax holderMotor;
 
   Joystick joystick;
   XboxController controller;
 
   PneumaticHub hub;
 
-  Solenoid intakeSolenoid;
+  DoubleSolenoid intakeSols;
+
+  private final double INTAKE_SPEED = 0.5;
+  private final double HOLDER_SPEED = 0.5;
 
   public Intake() {
 
     intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushed);
+    holderMotor = new CANSparkMax(Constants.DeviceIDs.HOLDER_ID,MotorType.kBrushed);//TODO do constant
     //intakeMotor.setInverted(false);
 
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
@@ -44,20 +51,20 @@ public class Intake extends SubsystemBase {
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
 
-    hub = new PneumaticHub(Constants.DeviceIDs.HUB_PORT);
+    //hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
 
-    intakeSolenoid = hub.makeSolenoid(0);
+    //intakeSols = hub.makeDoubleSolenoid(Constants.DeviceIDs.INTAKE_SOLENOID1, Constants.DeviceIDs.INTAKE_SOLENOID2);
   }
 
   public void runIntake(){
     //intakeMotor.setInverted(false);
-    intakeMotor.set(1);
+    intakeMotor.set(INTAKE_SPEED);
     //intakSolenoid.set(true);
   }
 
   public void runIntakeReverse(){
     //intakeMotor.setInverted(true);
-    intakeMotor.set(-1);
+    intakeMotor.set(-INTAKE_SPEED);
     //motor.set(-1);
   }
 
@@ -66,46 +73,50 @@ public class Intake extends SubsystemBase {
     //motor.set(0);
   }
 
+  public void stopHolder() {
+    holderMotor.set(0);
+  }
+
+  public void runHolder(){
+    holderMotor.set(HOLDER_SPEED);
+  }
+
+  public void runHolderReverse(){
+    holderMotor.set(-HOLDER_SPEED);
+  }
+
   public void intakeOut() {
-    intakeSolenoid.set(true);
+    intakeSols.set(Value.kForward);
   }
 
   public void intakeIn() {
-    intakeSolenoid.set(false);
+    intakeSols.set(Value.kReverse);;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if((Constants.xboxDrive && controller.getLeftTriggerAxis() > 0
-    ) || joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN
+    if((Constants.twoDriverMode && controller.getRightBumper()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN) && !Constants.twoDriverMode)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN
       runIntake();
-      controller.setRumble(RumbleType.kLeftRumble, 0.5);
+      runHolder();
       //System.out.println("intaking balls");
-    }else if((Constants.xboxDrive && controller.getLeftBumper()) || joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE
+    }else if((Constants.twoDriverMode && controller.getLeftTriggerAxis() > 0) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE) && !Constants.twoDriverMode)){//joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE
       runIntakeReverse();
+      runHolderReverse();
       //System.out.println("intake back");
     } else {
       stopIntake();
+      stopHolder();
     }
-
-    /*
-    if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_RUN)){
-      runIntake();
-    }else if(joystick.getRawButton(Constants.JoyStickButtons.INTAKE_REVERSE)){
-      runIntakeReverse();
-    }else{
-      stopIntake();
-    }
-    */
     
-    if ((Constants.xboxDrive && controller.getXButton()) || joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD)) {
+    if ((Constants.twoDriverMode && controller.getAButton()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_FORWARD) && !Constants.twoDriverMode)) {
       intakeOut();
       //System.out.println("intake sols forward");
     }
-    if((Constants.xboxDrive && controller.getBButton()) || joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK)) {
+    if((Constants.twoDriverMode && controller.getBButton()) || (joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK) && !Constants.twoDriverMode)) {
       intakeIn();
-      //System.out.println("intake sols back"); 
+      //System.out.println("intake sols back"); 0
+      
     }
   }
 }
