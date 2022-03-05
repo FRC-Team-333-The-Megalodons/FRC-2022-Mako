@@ -57,7 +57,7 @@ public final class Constants {
         public static final int PNEMATIC_HUB = 22;
 
         // Sensors
-        public static final int LIMIT_SWITCH = 9;
+        public static final int LIMIT_SWITCH = 0;
 
     }
 
@@ -86,6 +86,13 @@ public final class Constants {
         public static final int CLIMBER_DOWN = 12;//op
         public static final int CATAPULT_DOWN = 10;//driver
     }
+
+    public static class ControllerButtons {
+        // Sometimes the controller thinks it's a joystick
+        public static final int LEFT_TRIGGER = 7;
+        public static final int RIGHT_TRIGGER = 8;
+    }
+
 
     public static class RobotValues {
         // Below values are from the CHaracterization tool

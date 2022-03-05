@@ -111,7 +111,7 @@ public class Intake extends SubsystemBase {
     if (Constants.twoDriverMode)
     {
       // Intake is the Right Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
-      return controller.getRightTriggerAxis() >= 0.70;
+      return controller.getRightTriggerAxis() >= 0.70 || controller.getRawButton(Constants.ControllerButtons.RIGHT_TRIGGER);
     }
     else
     {
@@ -124,7 +124,7 @@ public class Intake extends SubsystemBase {
     if (Constants.twoDriverMode)
     {
       // Intake Reverse (outtake?) is Left Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
-      return controller.getLeftTriggerAxis() >= 0.70;
+      return controller.getLeftTriggerAxis() >= 0.70  || controller.getRawButton(Constants.ControllerButtons.LEFT_TRIGGER);
     }
     else
     {

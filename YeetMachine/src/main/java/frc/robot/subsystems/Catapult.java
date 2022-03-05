@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.time.chrono.MinguoEra;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -41,6 +42,7 @@ public class Catapult extends SubsystemBase {
     limitSwitch = limitSwitch_;
     yeeter = new CANSparkMax(Constants.DeviceIDs.CATAPULT_ID,MotorType.kBrushless);
     dashboard = new SmartDashboardWrapper(this);
+    yeeter.setIdleMode(IdleMode.kBrake);
     dashboard.putNumber(YEETER_SPEED_KEY, YEETER_SPEED);
   }
 
@@ -58,6 +60,17 @@ public class Catapult extends SubsystemBase {
     dashboard.putBoolean("Yeeter Down", limitSwitch.get());
   }
 
+  public boolean isLimitSwitchPressed()
+  {
+    return !limitSwitch.get();
+  }
+  
+  public boolean isFireButtonPressed()
+  {
+    //if (Constants.twoDriverMode)
+    return joystick.getRawButton(Constants.JoyStickButtons.CATAPULT);
+  }
+
   @Override
   public void periodic() {
     //This method will be called once per scheduler run
@@ -71,22 +84,22 @@ public class Catapult extends SubsystemBase {
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
 
-    if((!Constants.twoDriverMode && controller.getRightTriggerAxis() > 0) || (joystick.getRawButton(Constants.JoyStickButtons.CATAPULT) && !Constants.twoDriverMode)){
+
+    if(isFireButtonPressed()) {
       pewpew();
     }else{
       nopewpew();
     }
+    
 
     /*
-    if(limitSwitch.get() == true) {
+    if(!isLimitSwitchPressed() || isFireButtonPressed()) {
       pewpew();
-    } else if(limitSwitch.get() == false  && (joystick.getRawButton(Constants.JoyStickButtons.CATAPULT) || (Constants.xboxDrive && controller.getRightTriggerAxis() > 0))) {
-      System.out.println("YEET");
-      pewpew();
-    }else if(limitSwitch.get() == false){
+    }else {
       nopewpew();
     }
     */
+    
    }
 }
 
