@@ -4,6 +4,8 @@
 
 package frc.robot.utils;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -30,7 +32,7 @@ public final class Constants {
 
         //intake ID
         public static final int INTAKE_MOTOR_ID = 10;
-        public static final int HOLDER_ID = 0;
+        public static final int HOLDER_ID = 11;
 
         // catapult ID
         public static final int CATAPULT_ID = 7;
@@ -76,12 +78,37 @@ public final class Constants {
         public static final int CATAPULT = 1;//driver
         public static final int INTAKE_RUN = 2;//op
         public static final int INTAKE_REVERSE = 5;//op
-        public static final int INTAKE_FORWARD = 4;//op
-        public static final int INTAKE_BACK = 3;//op
+        public static final int INTAKE_FORWARD = 3;//op
+        public static final int INTAKE_BACK = 4;//op
         public static final int LOW_GEAR = 7;//driver
         public static final int HIGH_GEAR = 8;//driver
         public static final int CLIMBER_UP = 11;//op
         public static final int CLIMBER_DOWN = 12;//op
         public static final int CATAPULT_DOWN = 10;//driver
+    }
+
+    public static class RobotValues {
+        // Below values are from the CHaracterization tool
+        public static final double ksVolts = 0.19804;
+        public static final double kvVoltSecondsPerMeter = 0.26735;
+        public static final double kaVoltSecondsSquaredPerMeter = 0.075001;
+
+        public static final double kPDriveVel = 3.5898;
+
+        public static final double kTrackwidthMeters = 5.3367;
+        public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+
+        public static final double kMaxSpeedMetersPerSecond = 3;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+
+        public static final double kRamseteB = 2;
+        public static final double kRamseteZeta = 0.7;
+
+        // Below values are from manual testing with pushing the robot the length of a meter stick. Note that Eman was on the right side of the robot, so the Right Leader will be most precise
+        // First run:   Left Leader = 8.619077, Right Leader = -8.785745
+        // Second run:  Left Leader = 8.500028, Right Leader = -8.666696
+        // Third run:   Left Leader = 8.357168, Right Leader = -8.761935
+        // Average: Left Leader = 8.492091, Right Leader = 8.738125333333
+        public static final double kHallEffectUnitsPerMeter = 8.74;
     }
 }
