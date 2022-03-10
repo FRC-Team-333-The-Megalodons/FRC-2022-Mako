@@ -171,8 +171,8 @@ public class Chassis extends SubsystemBase {
     hub.enableCompressorAnalog(100, 110);
 
     if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||
-       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||
-       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR))
+       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR_EXTRA1) ||
+       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR_EXTRA2))
     {
       low();
     }
