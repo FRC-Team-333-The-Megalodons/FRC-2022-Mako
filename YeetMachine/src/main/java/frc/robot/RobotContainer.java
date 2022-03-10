@@ -44,7 +44,7 @@ public class RobotContainer {
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
     controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
     limitSwitch_device = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
-    limitSwitch = new LimitSwitch(limitSwitch_device);
+    limitSwitch = new LimitSwitch(joystick, limitSwitch_device);
     // Instantiate robot parts with shared classes
     chassis = new Chassis(joystick, controller);
     intake = new Intake(joystick, controller, limitSwitch);

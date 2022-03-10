@@ -9,9 +9,10 @@ public class LimitSwitch {
   private boolean m_hasLimitSwitchBeenPressed;
   private Joystick m_joystick;
     
-  public LimitSwitch(DigitalInput limitSwitch_)
+  public LimitSwitch(Joystick joystick_, DigitalInput limitSwitch_)
   {
       m_limitSwitch = limitSwitch_;
+      m_joystick = joystick_;
       m_hasLimitSwitchBeenPressed = false;
   }
 

@@ -37,6 +37,7 @@ public class Catapult extends SubsystemBase {
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 
   public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
+    limitSwitch = limitSwitch_;
     joystick = joystick_;
     controller = controller_;
     yeeter = new CANSparkMax(Constants.DeviceIDs.CATAPULT_ID,MotorType.kBrushless);

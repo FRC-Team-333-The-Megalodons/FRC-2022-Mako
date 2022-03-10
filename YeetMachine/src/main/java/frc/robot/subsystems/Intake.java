@@ -89,11 +89,11 @@ public class Intake extends SubsystemBase {
     intakeMotor.set(0);
   }
 
-  public void intakeOut() {
+  public void extendIntake() {
     intakeSols.set(Value.kForward);
   }
 
-  public void intakeIn() {
+  public void retractIntake() {
     if (!limitSwitch.shouldIgnoreLimitSwitch() && !limitSwitch.get()) {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
       return;
@@ -174,10 +174,10 @@ public class Intake extends SubsystemBase {
     }
     
     if (isExtendIntakeButtonPressed()) {
-      intakeOut();
+      extendIntake();
       //System.out.println("intake sols forward");
     } else if (isRetractIntakeButtonPressed()) {
-      intakeIn();
+      retractIntake();
       //System.out.println("intake sols back"); 0
       
     }
