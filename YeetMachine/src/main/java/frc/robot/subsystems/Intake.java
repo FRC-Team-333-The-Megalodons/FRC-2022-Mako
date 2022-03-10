@@ -30,7 +30,6 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
 
   CANSparkMax intakeMotor;
-  CANSparkMax holderMotor;
 
   Joystick joystick;
   XboxController controller;
@@ -39,8 +38,9 @@ public class Intake extends SubsystemBase {
 
   DoubleSolenoid intakeSols;
   SmartDashboardWrapper dashboard;
-  DigitalInput limitSwitch;
+  LimitSwitch limitSwitch;
 
+  private final double NOMINAL_SPEED = 0.333;
   private final double INTAKE_SPEED_DEFAULT = 0.65;
   private double INTAKE_SPEED = INTAKE_SPEED_DEFAULT;
   private final String INTAKE_SPEED_KEY = "Intake Speed";
@@ -49,13 +49,12 @@ public class Intake extends SubsystemBase {
   private double HOLDER_SPEED = HOLDER_SPEED_DEFAULT;
   private final String HOLDER_SPEED_KEY = "Holder Speed";
 
-  public Intake(Joystick joystick_, XboxController controller_, DigitalInput limitSwitch_) {
+  public Intake(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
     joystick = joystick_;
     controller = controller_;
     limitSwitch = limitSwitch_;
 
     intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushed);
-    holderMotor = new CANSparkMax(Constants.DeviceIDs.HOLDER_ID,MotorType.kBrushed);//TODO do constant
     //intakeMotor.setInverted(false);
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
@@ -71,6 +70,10 @@ public class Intake extends SubsystemBase {
   }
 
   public void runIntake(){
+    if (!limitSwitch.shouldIgnoreLimitSwitch() && !limitSwitch.get()) {
+      // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow intake.
+      return;
+    }
     //intakeMotor.setInverted(false);
     intakeMotor.set(-INTAKE_SPEED);
     //intakSolenoid.set(true);
@@ -86,24 +89,20 @@ public class Intake extends SubsystemBase {
     intakeMotor.set(0);
   }
 
-  public void stopHolder() {
-    holderMotor.set(0);
-  }
-
-  public void runHolder(){
-    holderMotor.set(HOLDER_SPEED);
-  }
-
-  public void runHolderReverse(){
-    holderMotor.set(-HOLDER_SPEED);
-  }
-
   public void intakeOut() {
     intakeSols.set(Value.kForward);
   }
 
   public void intakeIn() {
+    if (!limitSwitch.shouldIgnoreLimitSwitch() && !limitSwitch.get()) {
+      // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
+      return;
+    }
     intakeSols.set(Value.kReverse);;
+  }
+
+  public void intakeNominalSpeed() {
+    intakeMotor.set(NOMINAL_SPEED);
   }
 
   public boolean isIntakeButtonPressed()
@@ -163,15 +162,15 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
     if(isIntakeButtonPressed()) {
       runIntake();
-      runHolder();
+      //runHolder();
       //System.out.println("intaking balls");
     }else if(isIntakeReverseButtonPressed()) {
       runIntakeReverse();
-      runHolderReverse();
+      //runHolderReverse();
       //System.out.println("intake back");
     } else {
       stopIntake();
-      stopHolder();
+      //stopHolder();
     }
     
     if (isExtendIntakeButtonPressed()) {

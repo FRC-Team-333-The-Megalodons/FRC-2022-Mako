@@ -16,8 +16,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
 
-    public static final boolean xboxDrive = false;
-    public static final boolean twoDriverMode = false;
+    public static final boolean twoDriverMode = true;
 
     public static class DeviceIDs {
 
@@ -76,12 +75,13 @@ public final class Constants {
 
         //buttons for x-pro
         public static final int CATAPULT = 1;//driver
+        public static final int LOW_GEAR = 2; //driver
         public static final int INTAKE_RUN = 2;//op
         public static final int INTAKE_REVERSE = 5;//op
         public static final int INTAKE_FORWARD = 3;//op
         public static final int INTAKE_BACK = 4;//op
-        public static final int LOW_GEAR = 7;//driver
-        public static final int HIGH_GEAR = 8;//driver
+        public static final int LOW_GEAR_EXTRA1 = 7;//driver
+        public static final int LOW_GEAR_EXTRA2 = 8;//driver
         public static final int CLIMBER_UP = 11;//op
         public static final int CLIMBER_DOWN = 12;//op
         public static final int CATAPULT_DOWN = 10;//driver

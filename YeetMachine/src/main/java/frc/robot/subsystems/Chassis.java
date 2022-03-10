@@ -113,10 +113,22 @@ public class Chassis extends SubsystemBase {
   }
 
   public void low(){
+    leftLeader.setIdleMode(IdleMode.kBrake);
+    leftFollower.setIdleMode(IdleMode.kBrake);
+    leftFollower2.setIdleMode(IdleMode.kBrake);
+    rightLeader.setIdleMode(IdleMode.kBrake);
+    rightFollower.setIdleMode(IdleMode.kBrake);
+    rightFollower2.setIdleMode(IdleMode.kBrake);
     solenoids.set(Value.kForward);
   }
 
   public void high(){
+    leftLeader.setIdleMode(IdleMode.kCoast);
+    leftFollower.setIdleMode(IdleMode.kCoast);
+    leftFollower2.setIdleMode(IdleMode.kCoast);
+    rightLeader.setIdleMode(IdleMode.kCoast);
+    rightFollower.setIdleMode(IdleMode.kCoast);
+    rightFollower2.setIdleMode(IdleMode.kCoast);
     solenoids.set(Value.kReverse);
   }
 
@@ -154,22 +166,19 @@ public class Chassis extends SubsystemBase {
 
     //odometry.update(navx.getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
     
-    if(Constants.xboxDrive){
-      differentialDrive.arcadeDrive(controller.getRightX(), -controller.getLeftY());//joystick.getX(), -joystick.getY()
-    }else{
-      differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
-    }
+    differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 
     hub.enableCompressorAnalog(100, 110);
 
-    if((Constants.xboxDrive && controller.getYButton() && !Constants.twoDriverMode) || joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR)
+    if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||
+       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||
+       joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR))
+    {
       low();
-      //System.out.println("low");
     }
-
-    if((Constants.xboxDrive && controller.getXButton() && !Constants.twoDriverMode) || joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)){//joystick.getRawButton(Constants.JoyStickButtons.HIGH_GEAR)
+    else
+    {
       high();
-      //System.out.println("high");
     }
   }
 }

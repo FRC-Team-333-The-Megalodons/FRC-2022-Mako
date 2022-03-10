@@ -8,14 +8,17 @@ import javax.xml.catalog.Catalog;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Catapult;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LimitSwitch;
 import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants;
 
@@ -33,14 +36,15 @@ public class RobotContainer {
   Climber climber;
   Joystick joystick;
   XboxController controller;
-  DigitalInput limitSwitch;
+  DigitalInput limitSwitch_device;
+  LimitSwitch limitSwitch;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
     controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
-    limitSwitch = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
-
+    limitSwitch_device = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
+    limitSwitch = new LimitSwitch(limitSwitch_device);
     // Instantiate robot parts with shared classes
     chassis = new Chassis(joystick, controller);
     intake = new Intake(joystick, controller, limitSwitch);

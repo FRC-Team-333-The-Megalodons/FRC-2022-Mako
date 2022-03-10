@@ -29,17 +29,16 @@ public class Catapult extends SubsystemBase {
   CANSparkMax yeeter;
   Joystick joystick;
   XboxController controller;
-  DigitalInput limitSwitch;
   SmartDashboardWrapper dashboard;
+  LimitSwitch limitSwitch;
   
   private final double YEETER_SPEED_DEFAULT = 0.3;
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 
-  public Catapult(Joystick joystick_, XboxController controller_, DigitalInput limitSwitch_) {
+  public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
     joystick = joystick_;
     controller = controller_;
-    limitSwitch = limitSwitch_;
     yeeter = new CANSparkMax(Constants.DeviceIDs.CATAPULT_ID,MotorType.kBrushless);
     dashboard = new SmartDashboardWrapper(this);
     yeeter.setIdleMode(IdleMode.kBrake);
@@ -57,21 +56,27 @@ public class Catapult extends SubsystemBase {
 
   public void paintDashboard()
   {
-    dashboard.putBoolean("Yeeter Down", limitSwitch.get());
-  }
-
-  public boolean isLimitSwitchPressed()
-  {
-    return !limitSwitch.get();
+    dashboard.putBoolean("Yeeter Down", limitSwitch.isPhysicalSwitchPressed());
+    dashboard.putBoolean("Manual Mode", limitSwitch.shouldIgnoreLimitSwitch());
   }
   
   public boolean isFireButtonPressed()
   {
     //if (Constants.twoDriverMode)
+
+
+
+
+
+
+
+
+
+
+
+    
     return joystick.getRawButton(Constants.JoyStickButtons.CATAPULT);
   }
-
-  private boolean hasLimitSwitchBeenPressed = false;
 
   @Override
   public void periodic() {
@@ -86,35 +91,21 @@ public class Catapult extends SubsystemBase {
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
 
-    /* "Manual" behavior 
-    if(isFireButtonPressed()) {
-      pewpew();
-    }else{
-      nopewpew();
+    /* "Manual" behavior */
+    if (limitSwitch.shouldIgnoreLimitSwitch())
+    {
+      if(isFireButtonPressed()) {
+        pewpew();
+      }else{
+        nopewpew();
+      }
+    } else {
+      if(limitSwitch.get(isFireButtonPressed())) {
+        nopewpew();
+      }else {
+        pewpew();
+      }
     }
-    
-
-
-    /* Automatic behavior -
-     * The Limit Switch acts as a Circuit Breaker - once it's been pressed, the Catapult motor won't go anymore 
-     * until the Fire Button is pressed. 
-     */
-
-    if (isLimitSwitchPressed()) {
-      hasLimitSwitchBeenPressed = true;
-    }
-
-    if (isFireButtonPressed()) {
-      hasLimitSwitchBeenPressed = false;
-    }
-    
-    if(hasLimitSwitchBeenPressed) {
-      nopewpew();
-    }else {
-      pewpew();
-    }
-    
-    
-   }
+  }
 }
 
