@@ -36,6 +36,9 @@ public class Catapult extends SubsystemBase {
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 
+  private boolean isShotReady = false;
+  private final double HIGH_GOAL_SHOT_DISTANCE = 0.0;
+
   public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
     limitSwitch = limitSwitch_;
     joystick = joystick_;
@@ -59,6 +62,7 @@ public class Catapult extends SubsystemBase {
   {
     dashboard.putBoolean("Yeeter Down", limitSwitch.isPhysicalSwitchPressed());
     dashboard.putBoolean("Manual Mode", limitSwitch.shouldIgnoreLimitSwitch());
+    dashboard.putBoolean("Shot Ready?", isShotReady);
   }
   
   public boolean isFireButtonPressed()
@@ -88,6 +92,10 @@ public class Catapult extends SubsystemBase {
      * If the switch reads true, the motor will stop, making that the "home position"
      * If the trigger is pressed while at the home positin, take a shoot
      * Rinse, Repeat until Einstien
+     * 
+     * Potential High Goal Logic:
+     * if the limelight dist_to_target is within the distance needed to take the high goal, 
+     * change the shot bool on the dashboard to true 
      */
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
