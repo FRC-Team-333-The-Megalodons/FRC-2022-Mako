@@ -43,7 +43,8 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
+    
+    //CommandScheduler.getInstance().run();
     m_robotContainer.paintDashboard();
   }
 
@@ -58,17 +59,21 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.resetEncoders();
+    /*
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    */
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    m_robotContainer.autonomousPeriodic();
+  }
 
   @Override
   public void teleopInit() {
@@ -77,19 +82,23 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    /*
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    */
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_robotContainer.teleopPeriodic();
+  }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
+    //CommandScheduler.getInstance().cancelAll();
   }
 
   /** This function is called periodically during test mode. */

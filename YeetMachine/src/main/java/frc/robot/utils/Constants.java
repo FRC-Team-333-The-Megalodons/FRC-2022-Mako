@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public final class Constants {
 
     public static final boolean twoDriverMode = true;
+    public static final int autoMode = AutoMode.SHOOT_THEN_TAXI;
 
     public static class DeviceIDs {
 
@@ -119,5 +120,12 @@ public final class Constants {
         public static final double k_24inches_to_meters = 0.0254*24;
         public static final double k_hallEffectUnitsPer24Inches = 8.74;
         public static final double kHallEffectUnitsPerMeter = 8.74/k_24inches_to_meters;
+    }
+
+    public static class AutoMode {
+        public static final int TAXI_ONLY = 1;
+        public static final int SHOOT_ONLY = 2;
+        public static final int SHOOT_THEN_TAXI = 3;
+        public static final int TAXI_INTAKE_SHOOT = 4;
     }
 }

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
+import java.util.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimitSwitch;
+import frc.robot.utils.Constants.AutoMode;
 import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants;
 
@@ -38,6 +40,7 @@ public class RobotContainer {
   XboxController controller;
   DigitalInput limitSwitch_device;
   LimitSwitch limitSwitch;
+  long autoInitTime;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -51,6 +54,7 @@ public class RobotContainer {
     catapult = new Catapult(joystick, controller, limitSwitch);
     climber = new Climber(joystick, controller);
     configureButtonBindings();
+    autoInitTime = 0;
   }
 
   /**
@@ -68,14 +72,71 @@ public class RobotContainer {
    * @return the command to run in autonomous
   */
 
+  public void teleopPeriodic()
+  {
+    chassis.periodic();
+    intake.periodic();
+    catapult.periodic();
+    climber.periodic();
+  }
+
+  
+
+  public void autonomousPeriodic()
+  {
+    final int SHOOT_MS = 2000;
+    final int TAXI_MS = 2000;
+    final double TAXI_SPEED = 0.2;
+
+    if (autoInitTime == 0) {
+      autoInitTime = System.currentTimeMillis();
+    }
+    long now = System.currentTimeMillis();
+    long elapsed = now - autoInitTime;
+
+    switch (Constants.autoMode)
+    {
+      case AutoMode.TAXI_ONLY: {
+        if (elapsed < TAXI_MS) {
+          chassis.autoDrive(TAXI_SPEED);
+        } else {
+          chassis.stop();
+        }
+        break;
+      }
+
+      case AutoMode.SHOOT_ONLY: {
+        boolean fire = elapsed < SHOOT_MS;
+        catapult.autoPeriodic(fire);
+        break;
+      }
+
+      case AutoMode.SHOOT_THEN_TAXI: {
+        boolean fire = elapsed < SHOOT_MS;
+        catapult.autoPeriodic(fire);
+        if (elapsed >= SHOOT_MS && elapsed < (SHOOT_MS+TAXI_MS)) {
+          chassis.autoDrive(TAXI_SPEED);
+        } else {
+          chassis.stop();
+        }
+        break;
+      }
+
+      case AutoMode.TAXI_INTAKE_SHOOT: {
+        
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+  }
+
+
   public void resetEncoders()
   {
     chassis.resetEncoder();
-  }
-
-  public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return null;
   }
 
   public void paintDashboard()

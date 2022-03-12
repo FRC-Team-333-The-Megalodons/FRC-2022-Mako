@@ -10,6 +10,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -32,9 +35,13 @@ public class Catapult extends SubsystemBase {
   SmartDashboardWrapper dashboard;
   LimitSwitch limitSwitch;
   
-  private final double YEETER_SPEED_DEFAULT = 0.3;
+  private final double YEETER_SPEED_DEFAULT = 1.0;
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
+
+  NetworkTable table;;
+  NetworkTableEntry tx, ty, ta;
+  double x, y, area;
 
   public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
     limitSwitch = limitSwitch_;
@@ -44,6 +51,11 @@ public class Catapult extends SubsystemBase {
     dashboard = new SmartDashboardWrapper(this);
     yeeter.setIdleMode(IdleMode.kBrake);
     dashboard.putNumber(YEETER_SPEED_KEY, YEETER_SPEED);
+
+    table = NetworkTableInstance.getDefault().getTable("limelight");
+    tx = table.getEntry("tx");
+    ty = table.getEntry("ty");
+    ta = table.getEntry("ta");
   }
 
   public void pewpew(){
@@ -54,29 +66,49 @@ public class Catapult extends SubsystemBase {
   public void nopewpew(){
     yeeter.set(0.0);
   }
-
-  public void paintDashboard()
-  {
+  
+  public void paintDashboard() {
     dashboard.putBoolean("Yeeter Down", limitSwitch.isPhysicalSwitchPressed());
     dashboard.putBoolean("Manual Mode", limitSwitch.shouldIgnoreLimitSwitch());
   }
   
-  public boolean isFireButtonPressed()
-  {
-    //if (Constants.twoDriverMode)
-
-
-
-
-
-
-
-
-
-
-
-    
+  public boolean isFireButtonPressed() {
+    //if (Constants.twoDriverMode
     return joystick.getRawButton(Constants.JoyStickButtons.CATAPULT);
+  }
+
+  public boolean limeLightOnTarget(){
+
+    boolean check1 = false, check2 = false, check3 = false;
+
+    if(x < 0 && x > 0){
+      check1 = true;
+    }
+    if(y < 0 && y > 0){
+      check2 = true;
+    }
+    if(area < 0 && area > 0){
+      check3 = true;
+    }
+
+    return (check1 == check2) == check3;
+  }
+
+  public void autoPeriodic(boolean fire)
+  {
+    if (limitSwitch.shouldIgnoreLimitSwitch()) {
+      if (fire) {
+        pewpew();
+      } else {
+        nopewpew();
+      }
+    } else {
+      if (limitSwitch.get(fire)) {
+        nopewpew();
+      } else {
+        pewpew();
+      }
+    }
   }
 
   @Override
@@ -107,6 +139,15 @@ public class Catapult extends SubsystemBase {
         pewpew();
       }
     }
-  }
-}
 
+    //read values periodically
+    x = tx.getDouble(0.0);
+    y = ty.getDouble(0.0);
+    area = ta.getDouble(0.0);
+        
+    //post to smart dashboard periodically
+    SmartDashboard.putNumber("LimelightX", x);
+    SmartDashboard.putNumber("LimelightY", y);
+    SmartDashboard.putNumber("LimelightArea", area);
+  }
+} 

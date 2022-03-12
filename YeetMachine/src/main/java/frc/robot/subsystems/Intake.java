@@ -105,12 +105,15 @@ public class Intake extends SubsystemBase {
     intakeMotor.set(NOMINAL_SPEED);
   }
 
+  private static final double CONTROLLER_SHOULDER_TRIGGER_THRESHOLD = 0.30;
+
   public boolean isIntakeButtonPressed()
   {
     if (Constants.twoDriverMode)
     {
       // Intake is the Right Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
-      return controller.getRightTriggerAxis() >= 0.70 || controller.getRawButton(Constants.ControllerButtons.RIGHT_TRIGGER);
+      return controller.getRightTriggerAxis() >= CONTROLLER_SHOULDER_TRIGGER_THRESHOLD || 
+             controller.getRawButton(Constants.ControllerButtons.RIGHT_TRIGGER);
     }
     else
     {
@@ -123,7 +126,8 @@ public class Intake extends SubsystemBase {
     if (Constants.twoDriverMode)
     {
       // Intake Reverse (outtake?) is Left Trigger, which is an analog axis. It starts at 50%, so we'll call anything >= 70% as "held"
-      return controller.getLeftTriggerAxis() >= 0.70  || controller.getRawButton(Constants.ControllerButtons.LEFT_TRIGGER);
+      return controller.getLeftTriggerAxis() >= CONTROLLER_SHOULDER_TRIGGER_THRESHOLD ||
+             controller.getRawButton(Constants.ControllerButtons.LEFT_TRIGGER);
     }
     else
     {

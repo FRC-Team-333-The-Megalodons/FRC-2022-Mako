@@ -28,6 +28,8 @@ public class LimitSwitch {
 
   public boolean get(boolean isFireButtonPressed)
   {
+      // This implements a "latching" mechanism, where once it's been pressed, even if it flutters,
+      //  this function will continue returning true (until the trigger is pressed)
       if (isPhysicalSwitchPressed()) {
         m_hasLimitSwitchBeenPressed = true;
       }

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import javax.lang.model.element.Element;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -36,6 +38,8 @@ public class Chassis extends SubsystemBase {
   //CANSPARKS
   CANSparkMax leftLeader, leftFollower, leftFollower2;
   CANSparkMax rightLeader, rightFollower, rightFollower2;
+
+  ArrayList<CANSparkMax> allDrivetrainSpeedcontrollers;
 
   //ENCODERS
   RelativeEncoder leftLeaderEnc, leftFollowerEnc, leftFollower2Enc;
@@ -75,6 +79,13 @@ public class Chassis extends SubsystemBase {
     rightFollower2 = new CANSparkMax(Constants.DeviceIDs.RIGHT_FOLLOWER2_ID, MotorType.kBrushless);
     rightFollower2.follow(rightLeader);
 
+    allDrivetrainSpeedcontrollers = new ArrayList<CANSparkMax>();
+    allDrivetrainSpeedcontrollers.add(leftLeader);
+    allDrivetrainSpeedcontrollers.add(leftFollower);
+    allDrivetrainSpeedcontrollers.add(leftFollower2);
+    allDrivetrainSpeedcontrollers.add(rightLeader);
+    allDrivetrainSpeedcontrollers.add(rightFollower);
+    allDrivetrainSpeedcontrollers.add(rightFollower2);
 
     //motor controller encoder declarations
     leftLeaderEnc = leftLeader.getEncoder();
@@ -89,20 +100,12 @@ public class Chassis extends SubsystemBase {
     rightLeaderEnc.setPositionConversionFactor(1/Constants.RobotValues.kHallEffectUnitsPerMeter); // TODO: CHeck if we should use different numbers for left & right.
     
     //setting inverts
-    leftLeader.setInverted(false);
-    leftFollower.setInverted(false);
-    leftFollower2.setInverted(false);
 
-    rightLeader.setInverted(false);
-    rightFollower.setInverted(false);
-    rightFollower2.setInverted(false);
+    for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
+      c.setInverted(false);
+      c.setIdleMode(IdleMode.kCoast);
+    }
 
-    leftLeader.setIdleMode(IdleMode.kCoast);
-    leftFollower.setIdleMode(IdleMode.kCoast);
-    leftFollower2.setIdleMode(IdleMode.kCoast);
-    rightLeader.setIdleMode(IdleMode.kCoast);
-    rightFollower.setIdleMode(IdleMode.kCoast);
-    rightFollower2.setIdleMode(IdleMode.kCoast);
 
     //dif drive delcaration
     differentialDrive = new DifferentialDrive(leftLeader,rightLeader);
@@ -113,25 +116,21 @@ public class Chassis extends SubsystemBase {
   }
 
   public void low(){
-    leftLeader.setIdleMode(IdleMode.kBrake);
-    leftFollower.setIdleMode(IdleMode.kBrake);
-    leftFollower2.setIdleMode(IdleMode.kBrake);
-    rightLeader.setIdleMode(IdleMode.kBrake);
-    rightFollower.setIdleMode(IdleMode.kBrake);
-    rightFollower2.setIdleMode(IdleMode.kBrake);
-    solenoids.set(Value.kForward);
-  }
-
-  public void high(){
-    leftLeader.setIdleMode(IdleMode.kCoast);
-    leftFollower.setIdleMode(IdleMode.kCoast);
-    leftFollower2.setIdleMode(IdleMode.kCoast);
-    rightLeader.setIdleMode(IdleMode.kCoast);
-    rightFollower.setIdleMode(IdleMode.kCoast);
-    rightFollower2.setIdleMode(IdleMode.kCoast);
+    for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
+      c.setIdleMode(IdleMode.kBrake);
+    }
     solenoids.set(Value.kReverse);
   }
 
+  public void high(){
+    for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
+      c.setIdleMode(IdleMode.kCoast);
+    }
+    solenoids.set(Value.kForward);
+  }
+
+  /*
+  // For now, we don't need automatic transmission, as we can just always use high gear unless we're in defense.
   public void autoTrans(){
     if(joystick.getY() < .4){
       low();
@@ -139,6 +138,7 @@ public class Chassis extends SubsystemBase {
       high();
     }
   }
+  */
 
   public void resetEncoder()
   {
@@ -160,13 +160,28 @@ public class Chassis extends SubsystemBase {
     dashboard.putNumber("RightLeaderEnc",rightLeaderEnc.getPosition());
   }
 
+  public void autoDrive(double xSpeed)
+  {
+    double rotation = 0.0; // TODO : Get from NavX
+    arcadeDrive(xSpeed, rotation);
+  }
+
+  public void arcadeDrive(double xSpeed, double zRotation)
+  {
+    differentialDrive.arcadeDrive(xSpeed, zRotation);
+  }
+
+  public void stop()
+  {
+    arcadeDrive(0, 0);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
     //odometry.update(navx.getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
-    
-    differentialDrive.arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
+   arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 
     hub.enableCompressorAnalog(100, 110);
 
