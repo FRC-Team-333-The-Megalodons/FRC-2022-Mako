@@ -14,6 +14,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Compressor;
@@ -110,9 +111,12 @@ public class Chassis extends SubsystemBase {
     //dif drive delcaration
     differentialDrive = new DifferentialDrive(leftLeader,rightLeader);
 
-    solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
-
     navx = new AHRS(SPI.Port.kMXP);
+
+    resetEncoder();
+    odometry = new DifferentialDriveOdometry(navx.getRotation2d());
+
+    solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
   }
 
   public void low(){
@@ -150,6 +154,11 @@ public class Chassis extends SubsystemBase {
     return new DifferentialDriveWheelSpeeds(leftLeaderEnc.getVelocity(), rightLeaderEnc.getVelocity());
   }
 
+  public void resetOdometry(Pose2d pose) {
+    resetEncoder();
+    odometry.resetPosition(pose, navx.getRotation2d());
+  }
+
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
   }
@@ -175,13 +184,24 @@ public class Chassis extends SubsystemBase {
   {
     arcadeDrive(0, 0);
   }
+  
+  public Pose2d getPose2d() {
+    return odometry.getPoseMeters();
+  }
+
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    leftLeader.setVoltage(leftVolts);
+    rightLeader.setVoltage(rightVolts);
+    differentialDrive.feed();
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    //odometry.update(navx.getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
-   arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
+    odometry.update(navx.getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
+    
+    arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 
     hub.enableCompressorAnalog(100, 110);
 
