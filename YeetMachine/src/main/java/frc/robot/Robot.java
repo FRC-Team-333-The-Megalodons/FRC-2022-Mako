@@ -55,24 +55,29 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {}
 
+
+  final static boolean TRAJECTORY_COMMAND_MODE = false;
+
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     m_robotContainer.resetEncoders();
-    /*
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    if (TRAJECTORY_COMMAND_MODE) {
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+      // schedule the autonomous command (example)
+      if (m_autonomousCommand != null) {
+        m_autonomousCommand.schedule();
+      }
     }
-    */
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    m_robotContainer.autonomousPeriodic();
+    if (!TRAJECTORY_COMMAND_MODE) {
+      m_robotContainer.autonomousPeriodic();
+    }
   }
 
   @Override

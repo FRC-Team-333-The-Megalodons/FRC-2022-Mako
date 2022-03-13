@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
   LimitSwitch limitSwitch;
 
   private final double NOMINAL_SPEED = 0.333;
-  private final double INTAKE_SPEED_DEFAULT = 0.65;
+  private final double INTAKE_SPEED_DEFAULT = 0.45;
   private double INTAKE_SPEED = INTAKE_SPEED_DEFAULT;
   private final String INTAKE_SPEED_KEY = "Intake Speed";
 

@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import javax.lang.model.element.Element;
 
@@ -32,6 +33,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.utils.Constants;
+import frc.robot.utils.RobotUtils.DriveTrainEncoder;
+import frc.robot.utils.RobotUtils.NavXGyro;
+
 
 public class Chassis extends SubsystemBase {
   /** Creates a new Chassis. */
@@ -57,7 +61,8 @@ public class Chassis extends SubsystemBase {
   PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
   DoubleSolenoid solenoids;
 
-  AHRS navx;
+  NavXGyro navx;
+  DriveTrainEncoder driveTrainEncoder;
 
   DifferentialDriveOdometry odometry;
 
@@ -111,12 +116,28 @@ public class Chassis extends SubsystemBase {
     //dif drive delcaration
     differentialDrive = new DifferentialDrive(leftLeader,rightLeader);
 
-    navx = new AHRS(SPI.Port.kMXP);
+    driveTrainEncoder = new DriveTrainEncoder(leftLeaderEnc, rightLeaderEnc);
+    navx = new NavXGyro(SPI.Port.kMXP);
 
     resetEncoder();
-    odometry = new DifferentialDriveOdometry(navx.getRotation2d());
+    odometry = new DifferentialDriveOdometry(navx.getAHRS().getRotation2d());
 
     solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
+  }
+
+  public DifferentialDrive getDiffDrive()
+  {
+    return differentialDrive;
+  }
+
+  public DriveTrainEncoder getDriveTrainEncoder()
+  {
+    return driveTrainEncoder;
+  }
+
+  public NavXGyro getNavX()
+  {
+    return navx;
   }
 
   public void low(){
@@ -156,17 +177,22 @@ public class Chassis extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     resetEncoder();
-    odometry.resetPosition(pose, navx.getRotation2d());
+    odometry.resetPosition(pose, navx.getAHRS().getRotation2d());
   }
 
   public double getHeading() {
-    return navx.getRotation2d().getDegrees();
+    return navx.getAHRS().getRotation2d().getDegrees();
   }
 
   public void paintDashboard()
   {
     dashboard.putNumber("LeftLeaderEnc", leftLeaderEnc.getPosition());
     dashboard.putNumber("RightLeaderEnc",rightLeaderEnc.getPosition());
+    dashboard.putNumber("Pose2d X",getPose2d().getX());
+    dashboard.putNumber("Pose2d Y",getPose2d().getY());
+    dashboard.putNumber("NavX Heading",getHeading());
+    dashboard.putNumber("POSITION", driveTrainEncoder.averageEncoderPosition());
+
   }
 
   public void autoDrive(double xSpeed)
@@ -199,7 +225,7 @@ public class Chassis extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    odometry.update(navx.getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
+    odometry.update(navx.getAHRS().getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
     
     arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 

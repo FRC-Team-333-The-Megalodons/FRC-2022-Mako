@@ -36,6 +36,7 @@ import frc.robot.subsystems.LimitSwitch;
 import frc.robot.utils.Constants.AutoMode;
 import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants;
+import frc.robot.utils.RobotUtils.AutonStraightDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -54,6 +55,8 @@ public class RobotContainer {
   DigitalInput limitSwitch_device;
   LimitSwitch limitSwitch;
   long autoInitTime;
+  AutonStraightDrive autonStraightDrive;
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -66,6 +69,7 @@ public class RobotContainer {
     intake = new Intake(joystick, controller, limitSwitch);
     catapult = new Catapult(joystick, controller, limitSwitch);
     climber = new Climber(joystick, controller);
+    autonStraightDrive = new AutonStraightDrive(chassis.getDiffDrive(), chassis.getNavX(), chassis.getDriveTrainEncoder());
     configureButtonBindings();
     autoInitTime = 0;
   }
@@ -93,12 +97,32 @@ public class RobotContainer {
     climber.periodic();
   }
 
-  
+  static boolean autoDone = false;
+  static final double TAXI_DISTANCE = 2.0; // in meters (hopefully)
 
   public void autonomousPeriodic()
   {
+    chassis.low();
+    if (autoDone) {
+      chassis.stop();
+      return;
+    }
+    switch (Constants.autoMode) {
+      case AutoMode.TAXI_ONLY: {
+        if (autonStraightDrive.periodic(TAXI_DISTANCE)) {
+          autoDone = true;
+          chassis.stop();
+        }
+        break;
+      }
+    }
+  }
+
+  public void autonomousTimedPeriodic()
+  {
     final int SHOOT_MS = 2000;
     final int TAXI_MS = 2000;
+    final int INTAKE_EXTEND_MS = 1000;
     final double TAXI_SPEED = 0.2;
 
     if (autoInitTime == 0) {
@@ -106,6 +130,9 @@ public class RobotContainer {
     }
     long now = System.currentTimeMillis();
     long elapsed = now - autoInitTime;
+
+    // no matter what, we always want to extend the intake immediately & always.
+    intake.extendIntake();
 
     switch (Constants.autoMode)
     {
@@ -119,18 +146,22 @@ public class RobotContainer {
       }
 
       case AutoMode.SHOOT_ONLY: {
-        boolean fire = elapsed < SHOOT_MS;
-        catapult.autoPeriodic(fire);
+        if (elapsed > INTAKE_EXTEND_MS) {
+          boolean fire = elapsed < SHOOT_MS+INTAKE_EXTEND_MS;
+          catapult.autoPeriodic(fire);
+        }
         break;
       }
 
       case AutoMode.SHOOT_THEN_TAXI: {
-        boolean fire = elapsed < SHOOT_MS;
-        catapult.autoPeriodic(fire);
-        if (elapsed >= SHOOT_MS && elapsed < (SHOOT_MS+TAXI_MS)) {
-          chassis.autoDrive(TAXI_SPEED);
-        } else {
-          chassis.stop();
+        if (elapsed > INTAKE_EXTEND_MS) {
+          boolean fire = elapsed < SHOOT_MS+INTAKE_EXTEND_MS;
+          catapult.autoPeriodic(fire);
+          if (elapsed >= SHOOT_MS+INTAKE_EXTEND_MS && elapsed < (SHOOT_MS+INTAKE_EXTEND_MS+TAXI_MS)) {
+            chassis.autoDrive(TAXI_SPEED);
+          } else {
+            chassis.stop();
+          }
         }
         break;
       }
