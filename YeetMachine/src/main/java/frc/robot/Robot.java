@@ -5,8 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+/*
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+*/
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  //private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -55,13 +57,14 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {}
 
-
+  /*
   final static boolean TRAJECTORY_COMMAND_MODE = false;
-
+  */
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_robotContainer.resetEncoders();
+    m_robotContainer.autonomousInit();
+    /*
     if (TRAJECTORY_COMMAND_MODE) {
       m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -70,14 +73,13 @@ public class Robot extends TimedRobot {
         m_autonomousCommand.schedule();
       }
     }
+    */
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (!TRAJECTORY_COMMAND_MODE) {
       m_robotContainer.autonomousPeriodic();
-    }
   }
 
   @Override

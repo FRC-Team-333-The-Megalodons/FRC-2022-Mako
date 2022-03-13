@@ -90,7 +90,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void extendIntake() {
-    intakeSols.set(Value.kForward);
+    intakeSols.set(Value.kReverse);
   }
 
   public void retractIntake() {
@@ -98,7 +98,7 @@ public class Intake extends SubsystemBase {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
       return;
     }
-    intakeSols.set(Value.kReverse);;
+    intakeSols.set(Value.kForward);
   }
 
   public void intakeNominalSpeed() {
@@ -139,7 +139,8 @@ public class Intake extends SubsystemBase {
   {
     if (Constants.twoDriverMode)
     {
-      return controller.getXButton();
+      
+      return controller.getBButton();
     }
     else
     {
@@ -151,7 +152,8 @@ public class Intake extends SubsystemBase {
   {
     if (Constants.twoDriverMode)
     {
-      return controller.getBButton();
+      
+      return controller.getXButton();
     }
     else
     {

@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import java.util.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -35,6 +36,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimitSwitch;
 import frc.robot.utils.Constants.AutoMode;
 import frc.robot.utils.Constants.JoyStickButtons;
+import frc.robot.utils.Constants.TwoBallAutoState;
 import frc.robot.utils.Constants;
 import frc.robot.utils.RobotUtils.AutonStraightDrive;
 
@@ -98,10 +100,133 @@ public class RobotContainer {
   }
 
   static boolean autoDone = false;
-  static final double TAXI_DISTANCE = 2.0; // in meters (hopefully)
+  public void autonomousInit()
+  {
+    TWO_BALL_STATE = TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED;
+    resetEncoders();
+  }
+
+  long time_intake_extended = 0;
+  long time_first_shot_taken = 0;
+  long time_intake_began_after_arrival = 0;
+  long time_second_shot_taken = 0;
+
+  final double TAXI_DISTANCE = 2.0; // in meters (hopefully)
+  final double MAX_TAXI_SPEED = 0.5;
+  final int INTAKE_EXTEND_WAIT = 1000;
+  final int FIRE_SHOT_WAIT = 1000;
+  final int INTAKE_CARGO_WAIT = 1000;
+  final double RETURN_DISTANCE = -TAXI_DISTANCE;
+  final double SECOND_TAXI_DISTANCE = 2.0;
+
+  int TWO_BALL_STATE = TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED;
+  public void two_ball_auto()
+  {
+    chassis.low();
+    SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
+
+    switch (TWO_BALL_STATE) {
+      case TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED: {
+        intake.runIntake();
+        intake.extendIntake();
+        if (time_intake_extended == 0) {
+          time_intake_extended = System.currentTimeMillis();
+        }
+        long elapsed = System.currentTimeMillis() - time_intake_extended;
+        if (elapsed > INTAKE_EXTEND_WAIT) {
+          TWO_BALL_STATE = TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED;
+          break;
+        }
+        break;
+      }
+      case TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED: {
+        intake.stopIntake();
+        catapult.autoPeriodic(true);
+        if (time_first_shot_taken == 0) {
+          time_first_shot_taken = System.currentTimeMillis();
+        }
+        long elapsed = System.currentTimeMillis() - time_first_shot_taken;
+        if (elapsed > FIRE_SHOT_WAIT) {
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN;
+        }
+        break;
+      }
+      case TwoBallAutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
+        catapult.autoPeriodic(false);
+        if (limitSwitch.isPhysicalSwitchPressed()) {
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
+          break;
+        }
+        break;
+      }
+      case TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN: {
+        intake.runIntake();
+        boolean arrived = autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED);
+        if (arrived) {
+          if (time_intake_began_after_arrival == 0) {
+            time_intake_began_after_arrival = System.currentTimeMillis();
+          }
+          long elapsed = System.currentTimeMillis() - time_intake_began_after_arrival;
+          if (elapsed > INTAKE_CARGO_WAIT) {
+            TWO_BALL_STATE = TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO;
+            chassis.resetEncoders(); // To prepare for next journey.
+            break;
+          }
+        }
+        break;
+      }
+      case TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO: {
+        intake.stopIntake();
+        boolean arrived = autonStraightDrive.periodic(RETURN_DISTANCE, MAX_TAXI_SPEED);
+        if (arrived) {
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_RETURN_TO_ORIGINAL_SPOT;
+          break;
+        }
+        break;
+      }
+      case TwoBallAutoState.AFTER_RETURN_TO_ORIGINAL_SPOT: {
+        catapult.autoPeriodic(true);
+        if (time_second_shot_taken == 0) {
+          time_second_shot_taken = System.currentTimeMillis();
+        }
+        long elapsed = System.currentTimeMillis() - time_second_shot_taken;
+        if (elapsed > FIRE_SHOT_WAIT) {
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_SECOND_SHOT;
+          break;
+        }
+        break;
+      }
+      case TwoBallAutoState.AFTER_SECOND_SHOT: {
+        catapult.autoPeriodic(false);
+        boolean arrived = autonStraightDrive.periodic(SECOND_TAXI_DISTANCE, MAX_TAXI_SPEED);
+        if (arrived) {
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_SECOND_TAXI_OUT;
+          break;
+        }
+        break;
+      }
+      
+      case TwoBallAutoState.AFTER_SECOND_TAXI_OUT: {
+        // Continue on this until it's time for Teleop!
+        catapult.autoPeriodic(false);
+        chassis.stop();
+        intake.stopIntake();
+
+        break;
+      }
+    }
+
+  }
 
   public void autonomousPeriodic()
   {
+    chassis.runCompressor();
+    if (Constants.autoMode == AutoMode.TWO_BALL_AUTO) {
+      two_ball_auto();
+      return;
+    }
+/*
+
     chassis.low();
     if (autoDone) {
       chassis.stop();
@@ -109,13 +234,14 @@ public class RobotContainer {
     }
     switch (Constants.autoMode) {
       case AutoMode.TAXI_ONLY: {
-        if (autonStraightDrive.periodic(TAXI_DISTANCE)) {
+        if (autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED)) {
           autoDone = true;
           chassis.stop();
         }
         break;
       }
     }
+    */
   }
 
   public void autonomousTimedPeriodic()
@@ -179,8 +305,10 @@ public class RobotContainer {
 
   public void resetEncoders()
   {
-    chassis.resetEncoder();
+    autoDone = false;
+    chassis.resetEncoders();
   }
+  /*
   public Command getAutonomousCommand() {
 
     var autoVoltageConstraint = 
@@ -209,6 +337,7 @@ public class RobotContainer {
 
     return ramseteCommand.andThen(() -> chassis.tankDriveVolts(0, 0));
   }
+  */
 
   public void paintDashboard()
   {

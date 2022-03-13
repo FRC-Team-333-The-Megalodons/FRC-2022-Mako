@@ -35,13 +35,13 @@ public class Climber extends SubsystemBase {
   }
 
   public void climbUp() {
-    leftClimber.set(-CLIMB_SPEED);
-    rightClimber.set(CLIMB_SPEED);
+    leftClimber.set(CLIMB_SPEED);
+    rightClimber.set(-CLIMB_SPEED);
   }
 
   public void climbDown() {
-    leftClimber.set(CLIMB_SPEED);
-    rightClimber.set(-CLIMB_SPEED);
+    leftClimber.set(-CLIMB_SPEED);
+    rightClimber.set(CLIMB_SPEED);
   }
 
   public void stopClimb() {

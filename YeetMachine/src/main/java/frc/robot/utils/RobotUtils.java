@@ -8,6 +8,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class RobotUtils {
@@ -161,7 +162,7 @@ public static class AutonStraightDrive {
         return (Math.abs(a-b) < EPSILON);
     }
 
-    public boolean periodic(double distanceTarget)
+    public boolean periodic(double distanceTarget, double maxSpeed)
     {
         double speed = 0.0;
         if (fuzzyEquals(m_encoder.averageEncoderPosition(), distanceTarget))
@@ -172,13 +173,18 @@ public static class AutonStraightDrive {
         
         if (m_encoder.averageEncoderPosition() < distanceTarget)
         {
-            speed = 0.15;
+            speed = maxSpeed;
         }
         else
         {
-            speed = -0.15;
+            speed = -maxSpeed;
         }
-        m_drive.arcadeDrive(speed, m_gyro.getAngle(false) * m_gyro.getMultiplier());
+        //speed *= -1;
+        //double rotation = 0;
+        double rotation = m_gyro.getAngle(false) * m_gyro.getMultiplier();
+        SmartDashboard.putNumber("AutoSpeed", speed);
+        SmartDashboard.putNumber("AutoRotation", rotation);
+        m_drive.arcadeDrive(rotation, speed);
         return false;
     }
 
@@ -196,6 +202,13 @@ public static class DriveTrainEncoder {
         m_rightEncoder = right;
     }
 
+    public void reset()
+    {
+
+        m_leftEncoder.setPosition(0.0);
+        m_rightEncoder.setPosition(0.0);
+    }
+
     public double getLeftPosition() {
         return m_leftEncoder.getPosition();
     }
@@ -205,7 +218,7 @@ public static class DriveTrainEncoder {
     }
 
     public double averageEncoderPosition() {
-        return (m_leftEncoder.getPosition() -    m_rightEncoder.getPosition()) / 2;
+        return (m_leftEncoder.getPosition() - m_rightEncoder.getPosition()) / 2;
     }
 }
 

@@ -119,7 +119,7 @@ public class Chassis extends SubsystemBase {
     driveTrainEncoder = new DriveTrainEncoder(leftLeaderEnc, rightLeaderEnc);
     navx = new NavXGyro(SPI.Port.kMXP);
 
-    resetEncoder();
+    resetEncoders();
     odometry = new DifferentialDriveOdometry(navx.getAHRS().getRotation2d());
 
     solenoids = hub.makeDoubleSolenoid(Constants.DeviceIDs.DRIVETRAIN_SOLENOID_LOW, Constants.DeviceIDs.DRIVETRAIN_SOLENOID_HIGH);
@@ -165,7 +165,7 @@ public class Chassis extends SubsystemBase {
   }
   */
 
-  public void resetEncoder()
+  public void resetEncoders()
   {
     leftLeaderEnc.setPosition(0);
     rightLeaderEnc.setPosition(0);
@@ -176,7 +176,7 @@ public class Chassis extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    resetEncoder();
+    resetEncoders();
     odometry.resetPosition(pose, navx.getAHRS().getRotation2d());
   }
 
@@ -221,15 +221,21 @@ public class Chassis extends SubsystemBase {
     differentialDrive.feed();
   }
 
+  public void runCompressor()
+  {
+    hub.enableCompressorAnalog(100, 110);
+
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    runCompressor();
 
     odometry.update(navx.getAHRS().getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
     
     arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 
-    hub.enableCompressorAnalog(100, 110);
 
     if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||
        joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR_EXTRA1) ||
