@@ -44,9 +44,14 @@ public static class NavXGyro {
         // instead, just do it manually ourselves.
         // m_ahrs.reset(); m_ahrs.resetDisplacement();
 
+        // avoid infinite loops due to possible hardware failure
+        final int MAX_ATTEMPTS = 1000;
+        int num_attempts = 0;
         do {
             m_lastResetAngle = m_ahrs.getAngle();
-        } while (m_lastResetAngle == 0.0);
+            ++num_attempts;
+        } while (m_lastResetAngle == 0.0 
+                 && num_attempts < MAX_ATTEMPTS);
         m_history.clear();
     }
 
@@ -162,6 +167,8 @@ public static class AutonStraightDrive {
         return (Math.abs(a-b) < EPSILON);
     }
 
+    final double SLOWDOWN_POINT = 0.5;
+
     public boolean periodic(double distanceTarget, double maxSpeed)
     {
         double speed = 0.0;
@@ -179,6 +186,12 @@ public static class AutonStraightDrive {
         {
             speed = -maxSpeed;
         }
+
+        // If we're less than half a meter away, cut our speed in half.
+        if (Math.abs(m_encoder.averageEncoderPosition() - distanceTarget) < SLOWDOWN_POINT) { 
+            speed /= 2.0;
+        }
+
         //speed *= -1;
         //double rotation = 0;
         double rotation = m_gyro.getAngle(false) * m_gyro.getMultiplier();

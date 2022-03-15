@@ -140,7 +140,7 @@ public class Chassis extends SubsystemBase {
     return navx;
   }
 
-  public void low(){
+  public void trans_low(){
     for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
       c.setIdleMode(IdleMode.kBrake);
     }
@@ -155,7 +155,7 @@ public class Chassis extends SubsystemBase {
     solenoids.set(Value.kForward);
   }
 
-  public void high(){
+  public void trans_high(){
     for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
       c.setIdleMode(IdleMode.kCoast);
     }
@@ -166,9 +166,9 @@ public class Chassis extends SubsystemBase {
   // For now, we don't need automatic transmission, as we can just always use high gear unless we're in defense.
   public void autoTrans(){
     if(joystick.getY() < .4){
-      low();
+      trans_low();
     }else if(joystick.getY() >= .8){
-      high();
+      trans_high();
     }
   }
   */
@@ -177,6 +177,7 @@ public class Chassis extends SubsystemBase {
   {
     leftLeaderEnc.setPosition(0);
     rightLeaderEnc.setPosition(0);
+    navx.reset();
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -198,7 +199,8 @@ public class Chassis extends SubsystemBase {
     dashboard.putNumber("RightLeaderEnc",rightLeaderEnc.getPosition());
     dashboard.putNumber("Pose2d X",getPose2d().getX());
     dashboard.putNumber("Pose2d Y",getPose2d().getY());
-    dashboard.putNumber("NavX Heading",getHeading());
+    //dashboard.putNumber("NavX Raw Heading",getHeading());
+    dashboard.putNumber("NavX Heading", navx.getAngle(false));
     dashboard.putNumber("POSITION", driveTrainEncoder.averageEncoderPosition());
 
   }
@@ -249,11 +251,11 @@ public class Chassis extends SubsystemBase {
        joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR_EXTRA1) ||
        joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR_EXTRA2))
     {
-      low();
+      trans_low();
     }
     else
     {
-      high();
+      trans_high();
     }
   }
 }

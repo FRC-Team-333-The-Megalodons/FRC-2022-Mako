@@ -91,6 +91,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
   */
 
+  public void teleopInit()
+  {
+    resetEncoders();
+  }
+
   public void teleopPeriodic()
   {
     chassis.periodic();
@@ -105,7 +110,7 @@ public class RobotContainer {
   long time_intake_began_after_arrival = 0;
   long time_second_shot_taken = 0;
 
-  final double TAXI_DISTANCE = 2.0; // in meters (hopefully)
+  final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
   final int INTAKE_EXTEND_WAIT = 1000;
   final int FIRE_SHOT_WAIT = 1000;
@@ -127,7 +132,7 @@ public class RobotContainer {
   int TWO_BALL_STATE = TwoBallAutoState.INITIAL;
   public void two_ball_auto()
   {
-    chassis.automode();
+    chassis.trans_high_with_brake();
     SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
 
     switch (TWO_BALL_STATE) {
@@ -159,7 +164,8 @@ public class RobotContainer {
       case TwoBallAutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
         catapult.autoPeriodic(false);
         if (limitSwitch.isPhysicalSwitchPressed()) {
-          TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
+          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+          //TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
           break;
         }
         break;
