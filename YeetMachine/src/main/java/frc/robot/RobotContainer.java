@@ -119,7 +119,7 @@ public class RobotContainer {
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 2.0;
 
-  final long TAXI_TIME_HARD_STOP = 3000;
+  final long TAXI_TIME_HARD_STOP = 5000;
 
   public void autonomousInit()
   {
