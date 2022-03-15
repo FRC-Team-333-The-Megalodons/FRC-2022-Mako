@@ -37,8 +37,10 @@ import frc.robot.utils.RobotUtils.DriveTrainEncoder;
 import frc.robot.utils.RobotUtils.NavXGyro;
 
 
+
 public class Chassis extends SubsystemBase {
   /** Creates a new Chassis. */
+  final double GYRO_MULTIPLIER = 0.20; // for carpet, from Clyde
 
   //CANSPARKS
   CANSparkMax leftLeader, leftFollower, leftFollower2;
@@ -118,6 +120,7 @@ public class Chassis extends SubsystemBase {
 
     driveTrainEncoder = new DriveTrainEncoder(leftLeaderEnc, rightLeaderEnc);
     navx = new NavXGyro(SPI.Port.kMXP);
+    navx.setMultiplier(GYRO_MULTIPLIER);
 
     resetEncoders();
     odometry = new DifferentialDriveOdometry(navx.getAHRS().getRotation2d());
@@ -147,7 +150,7 @@ public class Chassis extends SubsystemBase {
     solenoids.set(Value.kReverse);
   }
 
-  public void automode()
+  public void trans_high_with_brake()
   {
     for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
       c.setIdleMode(IdleMode.kBrake);
@@ -178,6 +181,7 @@ public class Chassis extends SubsystemBase {
     leftLeaderEnc.setPosition(0);
     rightLeaderEnc.setPosition(0);
     navx.reset();
+    navx.setMultiplier(GYRO_MULTIPLIER);
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {

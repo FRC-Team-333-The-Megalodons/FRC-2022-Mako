@@ -109,23 +109,28 @@ public class RobotContainer {
   long time_first_shot_taken = 0;
   long time_intake_began_after_arrival = 0;
   long time_second_shot_taken = 0;
+  long time_first_taxi_begin = 0;
 
   final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
-  final int INTAKE_EXTEND_WAIT = 1000;
-  final int FIRE_SHOT_WAIT = 1000;
+  final int INTAKE_EXTEND_WAIT = 1500;
+  final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 2.0;
 
+  final long TAXI_TIME_HARD_STOP = 3000;
+
   public void autonomousInit()
   {
+    //TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
     TWO_BALL_STATE = TwoBallAutoState.INITIAL;
     autoDone = false;
     time_intake_extended = 0;
     time_first_shot_taken = 0;
     time_intake_began_after_arrival = 0;
     time_second_shot_taken = 0;
+    time_first_taxi_begin = 0;
     resetEncoders();
   }
 
@@ -164,14 +169,25 @@ public class RobotContainer {
       case TwoBallAutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
         catapult.autoPeriodic(false);
         if (limitSwitch.isPhysicalSwitchPressed()) {
-          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
-          //TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
+          //TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE; // Use this to prevent TAXI
+          TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
           break;
         }
         break;
       }
       case TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN: {
+        if (time_first_taxi_begin == 0) {
+          time_first_taxi_begin = System.currentTimeMillis();
+        }
+        // Ensure the robot doesn't go crazy. Stop after 3 seconds.
+        long taxi_elapsed = System.currentTimeMillis() - time_first_taxi_begin;
+        if (taxi_elapsed > TAXI_TIME_HARD_STOP) {
+          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+          break;
+        }
+
         intake.runIntake();
+        
         boolean arrived = autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
           if (time_intake_began_after_arrival == 0) {
