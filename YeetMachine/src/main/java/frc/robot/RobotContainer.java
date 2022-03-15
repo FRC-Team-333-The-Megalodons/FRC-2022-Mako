@@ -99,13 +99,7 @@ public class RobotContainer {
     climber.periodic();
   }
 
-  static boolean autoDone = false;
-  public void autonomousInit()
-  {
-    TWO_BALL_STATE = TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED;
-    resetEncoders();
-  }
-
+  boolean autoDone = false;
   long time_intake_extended = 0;
   long time_first_shot_taken = 0;
   long time_intake_began_after_arrival = 0;
@@ -119,14 +113,25 @@ public class RobotContainer {
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 2.0;
 
-  int TWO_BALL_STATE = TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED;
+  public void autonomousInit()
+  {
+    TWO_BALL_STATE = TwoBallAutoState.INITIAL;
+    autoDone = false;
+    time_intake_extended = 0;
+    time_first_shot_taken = 0;
+    time_intake_began_after_arrival = 0;
+    time_second_shot_taken = 0;
+    resetEncoders();
+  }
+
+  int TWO_BALL_STATE = TwoBallAutoState.INITIAL;
   public void two_ball_auto()
   {
-    chassis.low();
+    chassis.automode();
     SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
 
     switch (TWO_BALL_STATE) {
-      case TwoBallAutoState.BEFORE_FIRST_SHOT_INTAKE_RETRACTED: {
+      case TwoBallAutoState.INITIAL: {
         intake.runIntake();
         intake.extendIntake();
         if (time_intake_extended == 0) {
@@ -167,8 +172,9 @@ public class RobotContainer {
             time_intake_began_after_arrival = System.currentTimeMillis();
           }
           long elapsed = System.currentTimeMillis() - time_intake_began_after_arrival;
-          if (elapsed > INTAKE_CARGO_WAIT) {
-            TWO_BALL_STATE = TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO;
+          if (elapsed >= INTAKE_CARGO_WAIT) {
+            TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+            //TWO_BALL_STATE = TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO;
             chassis.resetEncoders(); // To prepare for next journey.
             break;
           }
@@ -200,13 +206,14 @@ public class RobotContainer {
         catapult.autoPeriodic(false);
         boolean arrived = autonStraightDrive.periodic(SECOND_TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
-          TWO_BALL_STATE = TwoBallAutoState.AFTER_SECOND_TAXI_OUT;
+          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
           break;
         }
         break;
       }
       
-      case TwoBallAutoState.AFTER_SECOND_TAXI_OUT: {
+      case TwoBallAutoState.AUTO_DONE:
+      default: {
         // Continue on this until it's time for Teleop!
         catapult.autoPeriodic(false);
         chassis.stop();

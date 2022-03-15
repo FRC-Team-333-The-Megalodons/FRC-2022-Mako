@@ -139,14 +139,14 @@ public final class Constants {
 
     
     public static class TwoBallAutoState {
-        public static final int BEFORE_FIRST_SHOT_INTAKE_RETRACTED = 0;
+        public static final int INITIAL = 0;
         public static final int BEFORE_FIRST_SHOT_INTAKE_EXTENDED = 1;
         public static final int AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN = 2;
         public static final int AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN = 3;
         public static final int AFTER_INTAKE_SECOND_CARGO = 4;
         public static final int AFTER_RETURN_TO_ORIGINAL_SPOT = 5;
         public static final int AFTER_SECOND_SHOT = 6;
-        public static final int AFTER_SECOND_TAXI_OUT = 7;
+        public static final int AUTO_DONE = 100;
 
     }
 }

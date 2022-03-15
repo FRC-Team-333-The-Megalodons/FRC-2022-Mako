@@ -147,6 +147,14 @@ public class Chassis extends SubsystemBase {
     solenoids.set(Value.kReverse);
   }
 
+  public void automode()
+  {
+    for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
+      c.setIdleMode(IdleMode.kBrake);
+    }
+    solenoids.set(Value.kForward);
+  }
+
   public void high(){
     for (CANSparkMax c : allDrivetrainSpeedcontrollers) {
       c.setIdleMode(IdleMode.kCoast);
