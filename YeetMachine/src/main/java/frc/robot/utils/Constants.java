@@ -147,6 +147,7 @@ public final class Constants {
         public static final int AFTER_RETURN_TO_ORIGINAL_SPOT = 5;
         public static final int AFTER_SECOND_SHOT = 6;
         public static final int AUTO_DONE = 100;
+        public static final int UNSPECIFIED = 9999;
 
     }
 }

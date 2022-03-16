@@ -235,4 +235,19 @@ public static class DriveTrainEncoder {
     }
 }
 
+public static class ComboBoxItem {
+    private String m_label;
+    private int m_value;
+
+    public ComboBoxItem(String label, int value)
+    {
+        m_label = label;
+        m_value = value;
+    }
+
+    public String getLabel() { return m_label; }
+    public int getValue() { return m_value; }
+
+}
+
 }

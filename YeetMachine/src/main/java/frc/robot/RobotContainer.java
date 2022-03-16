@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.sql.Driver;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.catalog.Catalog;
@@ -19,6 +21,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
@@ -29,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.subsystems.Catapult;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -39,6 +43,7 @@ import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants.TwoBallAutoState;
 import frc.robot.utils.Constants;
 import frc.robot.utils.RobotUtils.AutonStraightDrive;
+import frc.robot.utils.RobotUtils.ComboBoxItem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,6 +63,7 @@ public class RobotContainer {
   LimitSwitch limitSwitch;
   long autoInitTime;
   AutonStraightDrive autonStraightDrive;
+  SmartDashboardWrapper dashboard;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -74,6 +80,8 @@ public class RobotContainer {
     autonStraightDrive = new AutonStraightDrive(chassis.getDiffDrive(), chassis.getNavX(), chassis.getDriveTrainEncoder());
     configureButtonBindings();
     autoInitTime = 0;
+    
+    dashboard = new SmartDashboardWrapper(this);
   }
 
   /**
@@ -83,6 +91,15 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+  }
+
+  public void robotInit()
+  {
+    ArrayList<ComboBoxItem> autoList = new ArrayList<ComboBoxItem>();
+    autoList.add(new ComboBoxItem("Full Two-ball Auto", TwoBallAutoState.UNSPECIFIED));
+    autoList.add(new ComboBoxItem("Pick up Second Ball and stop", TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO));
+    autoList.add(new ComboBoxItem("Shoot First Ball and dont move", TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN));
+    dashboard.createAutoPicker(autoList);
   }
 
   /**
@@ -110,6 +127,8 @@ public class RobotContainer {
   long time_intake_began_after_arrival = 0;
   long time_second_shot_taken = 0;
   long time_first_taxi_begin = 0;
+  long time_return_taxi_begin = 0;
+  long time_second_taxi_begin = 0;
 
   final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
@@ -117,7 +136,7 @@ public class RobotContainer {
   final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
-  final double SECOND_TAXI_DISTANCE = 2.0;
+  final double SECOND_TAXI_DISTANCE = 1.25;
 
   final long TAXI_TIME_HARD_STOP = 5000;
 
@@ -131,6 +150,8 @@ public class RobotContainer {
     time_intake_began_after_arrival = 0;
     time_second_shot_taken = 0;
     time_first_taxi_begin = 0;
+    time_return_taxi_begin = 0;
+    time_second_taxi_begin = 0;
     resetEncoders();
   }
 
@@ -139,6 +160,13 @@ public class RobotContainer {
   {
     chassis.trans_high_with_brake();
     SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
+
+    /*
+    if (dashboard.getAutoSelection() == TWO_BALL_STATE) {
+      DriverStation.reportWarning("Hit Auto End Condition due to Dashboard selection of "+TWO_BALL_STATE, false);
+      TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+    }
+    */
 
     switch (TWO_BALL_STATE) {
       case TwoBallAutoState.INITIAL: {
@@ -169,7 +197,6 @@ public class RobotContainer {
       case TwoBallAutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
         catapult.autoPeriodic(false);
         if (limitSwitch.isPhysicalSwitchPressed()) {
-          //TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE; // Use this to prevent TAXI
           TWO_BALL_STATE = TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
           break;
         }
@@ -178,10 +205,13 @@ public class RobotContainer {
       case TwoBallAutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN: {
         if (time_first_taxi_begin == 0) {
           time_first_taxi_begin = System.currentTimeMillis();
+          resetEncoders();
         }
-        // Ensure the robot doesn't go crazy. Stop after 3 seconds.
-        long taxi_elapsed = System.currentTimeMillis() - time_first_taxi_begin;
+        // Ensure the robot doesn't go crazy. Stop after N seconds.
+        long now = System.currentTimeMillis();
+        long taxi_elapsed = now - time_first_taxi_begin;
         if (taxi_elapsed > TAXI_TIME_HARD_STOP) {
+          DriverStation.reportError("Hit TAXI_TIME_HARD_STOP in AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN, elapsed="+taxi_elapsed+", time_first_taxi_begin="+time_first_taxi_begin+", now="+now, false);
           TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
           break;
         }
@@ -195,8 +225,7 @@ public class RobotContainer {
           }
           long elapsed = System.currentTimeMillis() - time_intake_began_after_arrival;
           if (elapsed >= INTAKE_CARGO_WAIT) {
-            TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
-            //TWO_BALL_STATE = TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO;
+            TWO_BALL_STATE = TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO;
             chassis.resetEncoders(); // To prepare for next journey.
             break;
           }
@@ -204,15 +233,32 @@ public class RobotContainer {
         break;
       }
       case TwoBallAutoState.AFTER_INTAKE_SECOND_CARGO: {
-        intake.stopIntake();
+        intake.runIntake(); // Keep running the intake - we don't want to lose it,
+                            // and we might not even fully have it in the claw yet!
+
+        if (time_return_taxi_begin == 0) {
+          time_return_taxi_begin = System.currentTimeMillis();
+        }
+        // Ensure the robot doesn't go crazy. Hard stop after N seconds.
+        long now = System.currentTimeMillis();
+        long taxi_elapsed = now - time_return_taxi_begin;
+        if (taxi_elapsed > TAXI_TIME_HARD_STOP) {
+          DriverStation.reportError("Hit TAXI_TIME_HARD_STOP in AFTER_ITNAKE_SECOND_CARGO, elapsed="+taxi_elapsed+", time_return_taxi_begin="+time_return_taxi_begin+", now="+now, false);
+          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+          break;
+        }
+
         boolean arrived = autonStraightDrive.periodic(RETURN_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
           TWO_BALL_STATE = TwoBallAutoState.AFTER_RETURN_TO_ORIGINAL_SPOT;
+          chassis.resetEncoders(); // To prepare for next journey.
           break;
         }
         break;
       }
       case TwoBallAutoState.AFTER_RETURN_TO_ORIGINAL_SPOT: {
+        // At this point we can finally stop the intake.
+        intake.stopIntake();
         catapult.autoPeriodic(true);
         if (time_second_shot_taken == 0) {
           time_second_shot_taken = System.currentTimeMillis();
@@ -225,6 +271,18 @@ public class RobotContainer {
         break;
       }
       case TwoBallAutoState.AFTER_SECOND_SHOT: {
+        if (time_second_taxi_begin == 0) {
+          time_second_taxi_begin = System.currentTimeMillis();
+        }
+        long now = System.currentTimeMillis();
+        long taxi_elapsed = now - time_second_taxi_begin;
+        // Ensure the robot doesn't go crazy. Hard stop after N seconds.
+        if (taxi_elapsed > TAXI_TIME_HARD_STOP) {
+          DriverStation.reportError("Hit TAXI_TIME_HARD_STOP in AFTER_SECOND_SHOT, elapsed="+taxi_elapsed+", time_second_taxi_begin="+time_second_taxi_begin+", now="+now, false);
+          TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
+          break;
+        }
+
         catapult.autoPeriodic(false);
         boolean arrived = autonStraightDrive.periodic(SECOND_TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
