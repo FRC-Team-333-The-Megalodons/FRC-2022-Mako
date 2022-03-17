@@ -161,12 +161,12 @@ public class RobotContainer {
     chassis.trans_high_with_brake();
     SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
 
-    /*
+    
     if (dashboard.getAutoSelection() == TWO_BALL_STATE) {
       DriverStation.reportWarning("Hit Auto End Condition due to Dashboard selection of "+TWO_BALL_STATE, false);
       TWO_BALL_STATE = TwoBallAutoState.AUTO_DONE;
     }
-    */
+    
 
     switch (TWO_BALL_STATE) {
       case TwoBallAutoState.INITIAL: {
@@ -220,6 +220,7 @@ public class RobotContainer {
         
         boolean arrived = autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
+          time_first_taxi_begin = System.currentTimeMillis(); // no need to worry about taxi anymore.
           if (time_intake_began_after_arrival == 0) {
             time_intake_began_after_arrival = System.currentTimeMillis();
           }
