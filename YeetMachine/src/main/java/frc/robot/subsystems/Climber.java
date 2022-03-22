@@ -8,8 +8,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
 
@@ -19,6 +22,8 @@ public class Climber extends SubsystemBase {
   CANSparkMax rightClimber;
   Joystick joystick;
   XboxController controller;
+  DoubleSolenoid doubleClimbers;
+  PneumaticHub hub;
 
   private final double CLIMB_SPEED = 1.0;
 
@@ -32,6 +37,10 @@ public class Climber extends SubsystemBase {
 
     leftClimber.setIdleMode(IdleMode.kBrake);
     rightClimber.setIdleMode(IdleMode.kBrake);
+
+    hub = new PneumaticHub(Constants.DeviceIDs.POWER_DISTRIBUTION_BOARD_PORT);
+
+    doubleClimbers = hub.makeDoubleSolenoid(0, 1);//todo change this
   }
 
   public void climbUp() {
@@ -47,6 +56,14 @@ public class Climber extends SubsystemBase {
   public void stopClimb() {
     leftClimber.set(0.0);
     rightClimber.set(0.0);
+  }
+
+  public void doubleClimbersUp() {
+    doubleClimbers.set(Value.kForward);
+  }
+
+  public void doubleClimbersDown() {
+    doubleClimbers.set(Value.kReverse);
   }
 
   public boolean isRaiseClimberButtonPressed()
@@ -73,6 +90,15 @@ public class Climber extends SubsystemBase {
     }
   }
 
+  //todo add as constants
+  public boolean isDoubleClimberUpButtonPressed() {
+    return controller.getRawButton(8);
+  }
+
+  public boolean isDoubleClimberDownButtonPressed(){
+    return controller.getRawButton(7);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -82,6 +108,14 @@ public class Climber extends SubsystemBase {
       climbDown();
     } else {
       stopClimb();  
+    }
+
+    if(isDoubleClimberUpButtonPressed()){
+      doubleClimbersUp();
+    }
+
+    if(isDoubleClimberDownButtonPressed()){
+      doubleClimbersDown();
     }
   }  
 }
