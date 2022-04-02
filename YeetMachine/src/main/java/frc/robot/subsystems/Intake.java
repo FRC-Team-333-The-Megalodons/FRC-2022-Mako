@@ -60,7 +60,7 @@ public class Intake extends SubsystemBase {
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
 
-    hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
+    hub = new PneumaticHub(Constants.DeviceIDs.PNEUMATIC_HUB);
 
     intakeSols = hub.makeDoubleSolenoid(Constants.DeviceIDs.INTAKE_SOLENOID1, Constants.DeviceIDs.INTAKE_SOLENOID2);
 

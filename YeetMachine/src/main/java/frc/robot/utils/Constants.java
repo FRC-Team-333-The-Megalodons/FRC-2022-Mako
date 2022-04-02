@@ -17,7 +17,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public final class Constants {
 
     public static final boolean twoDriverMode = true;
-    public static final int autoMode = AutoMode.TWO_BALL_AUTO;
 
     public static class DeviceIDs {
 
@@ -54,7 +53,7 @@ public final class Constants {
 
         // Modules
         public static final int POWER_DISTRIBUTION_BOARD_PORT = 24;
-        public static final int PNEMATIC_HUB = 22;
+        public static final int PNEUMATIC_HUB = 22;
 
         // Sensors
         public static final int LIMIT_SWITCH = 0;
@@ -122,23 +121,7 @@ public final class Constants {
         public static final double kHallEffectUnitsPerMeter = 8.74/k_24inches_to_meters;
     }
 
-    public static class AutoMode {
-        public static final int TAXI_ONLY = 1;
-        public static final int SHOOT_ONLY = 2;
-        public static final int SHOOT_THEN_TAXI = 3;
-        public static final int TAXI_INTAKE_SHOOT = 4;
-        public static final int TWO_BALL_AUTO = 5;
-        /*
-        1. Shoot
-        2. Pull down arm, while taxiing, and intaking the moment arm is far enough
-        3. Come back
-        4. Shoot
-        5. Taxi back out again, while pulling down arm
-        */
-    }
-
-    
-    public static class TwoBallAutoState {
+    public static class AutoState {
         public static final int INITIAL = 0;
         public static final int BEFORE_FIRST_SHOT_INTAKE_EXTENDED = 1;
         public static final int AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN = 2;

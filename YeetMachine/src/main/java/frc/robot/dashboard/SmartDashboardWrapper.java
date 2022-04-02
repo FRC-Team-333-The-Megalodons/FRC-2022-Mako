@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.utils.RobotUtils.AutoOption;
 import frc.robot.utils.RobotUtils.ComboBoxItem;
 
 public class SmartDashboardWrapper
@@ -81,7 +82,7 @@ public class SmartDashboardWrapper
         SmartDashboard.putData("AutoMode", picker);
     }
     
-    public int getAutoSelection()
+    public AutoOption getAutoSelection()
     {
         return m_autoPicker.getSelected().getValue();
     }

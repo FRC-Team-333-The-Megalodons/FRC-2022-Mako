@@ -237,17 +237,27 @@ public static class DriveTrainEncoder {
 
 public static class ComboBoxItem {
     private String m_label;
-    private int m_value;
+    private AutoOption m_value;
 
-    public ComboBoxItem(String label, int value)
+    public ComboBoxItem(String label, AutoOption value)
     {
         m_label = label;
         m_value = value;
     }
 
     public String getLabel() { return m_label; }
-    public int getValue() { return m_value; }
+    public AutoOption getValue() { return m_value; }
 
+}
+
+public static class AutoOption {
+    public AutoOption(int start_state_, int stop_state_)
+    {
+        start_state = start_state_;
+        stop_state = stop_state_;
+    }
+    public int start_state;
+    public int stop_state;
 }
 
 }

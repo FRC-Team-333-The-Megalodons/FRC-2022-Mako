@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     leftClimber.setIdleMode(IdleMode.kBrake);
     rightClimber.setIdleMode(IdleMode.kBrake);
 
-    hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
+    hub = new PneumaticHub(Constants.DeviceIDs.PNEUMATIC_HUB);
 
     doubleClimbers = hub.makeDoubleSolenoid(2,3);//todo change this
   }

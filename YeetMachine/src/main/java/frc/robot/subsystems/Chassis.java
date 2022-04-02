@@ -60,7 +60,7 @@ public class Chassis extends SubsystemBase {
   XboxController controller;
 
   //transmission and compressor
-  PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
+  PneumaticHub hub = new PneumaticHub(Constants.DeviceIDs.PNEUMATIC_HUB);
   DoubleSolenoid solenoids;
 
   NavXGyro navx;
