@@ -133,7 +133,7 @@ public class RobotContainer {
   final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
   final int INTAKE_EXTEND_WAIT = 1500;
-  final int FIRE_SHOT_WAIT = 1500;
+  final int FIRE_SHOT_WAIT = 3000;//1500;
   final int INTAKE_CARGO_WAIT = 1000;
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 1.25;

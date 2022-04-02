@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import javax.lang.model.element.Element;
 
+import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -41,7 +42,7 @@ public class Intake extends SubsystemBase {
   LimitSwitch limitSwitch;
 
   private final double NOMINAL_SPEED = 0.333;
-  private final double INTAKE_SPEED_DEFAULT = 0.45;
+  private final double INTAKE_SPEED_DEFAULT = 0.5;
   private double INTAKE_SPEED = INTAKE_SPEED_DEFAULT;
   private final String INTAKE_SPEED_KEY = "Intake Speed";
 
@@ -54,7 +55,7 @@ public class Intake extends SubsystemBase {
     controller = controller_;
     limitSwitch = limitSwitch_;
 
-    intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushed);
+    intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushless);
     //intakeMotor.setInverted(false);
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
@@ -63,7 +64,6 @@ public class Intake extends SubsystemBase {
 
     intakeSols = hub.makeDoubleSolenoid(Constants.DeviceIDs.INTAKE_SOLENOID1, Constants.DeviceIDs.INTAKE_SOLENOID2);
 
-    
     dashboard = new SmartDashboardWrapper(this);
     dashboard.putNumber(INTAKE_SPEED_KEY, INTAKE_SPEED);
     dashboard.putNumber(HOLDER_SPEED_KEY, HOLDER_SPEED);
@@ -90,7 +90,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void extendIntake() {
-    intakeSols.set(Value.kReverse);
+    intakeSols.set(Value.kForward);
   }
 
   public void retractIntake() {
@@ -98,7 +98,7 @@ public class Intake extends SubsystemBase {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
       return;
     }
-    intakeSols.set(Value.kForward);
+    intakeSols.set(Value.kReverse);
   }
 
   public void intakeNominalSpeed() {
@@ -152,7 +152,6 @@ public class Intake extends SubsystemBase {
   {
     if (Constants.twoDriverMode)
     {
-      
       return controller.getXButton();
     }
     else

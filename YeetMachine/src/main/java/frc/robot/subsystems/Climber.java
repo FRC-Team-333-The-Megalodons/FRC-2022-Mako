@@ -38,9 +38,9 @@ public class Climber extends SubsystemBase {
     leftClimber.setIdleMode(IdleMode.kBrake);
     rightClimber.setIdleMode(IdleMode.kBrake);
 
-    hub = new PneumaticHub(Constants.DeviceIDs.POWER_DISTRIBUTION_BOARD_PORT);
+    hub = new PneumaticHub(Constants.DeviceIDs.PNEMATIC_HUB);
 
-    doubleClimbers = hub.makeDoubleSolenoid(0, 1);//todo change this
+    doubleClimbers = hub.makeDoubleSolenoid(2,3);//todo change this
   }
 
   public void climbUp() {
@@ -92,11 +92,11 @@ public class Climber extends SubsystemBase {
 
   //todo add as constants
   public boolean isDoubleClimberUpButtonPressed() {
-    return controller.getRawButton(8);
+    return controller.getRawButton(6);
   }
 
   public boolean isDoubleClimberDownButtonPressed(){
-    return controller.getRawButton(7);
+    return controller.getRawButton(5);
   }
 
   @Override
@@ -110,12 +110,14 @@ public class Climber extends SubsystemBase {
       stopClimb();  
     }
 
-    if(isDoubleClimberUpButtonPressed()){
+    if(controller.getRightBumper()){
       doubleClimbersUp();
+      //System.out.println("oui");
     }
 
-    if(isDoubleClimberDownButtonPressed()){
+    if(controller.getLeftBumper()){
       doubleClimbersDown();
+      //System.out.println("non");
     }
   }  
 }
