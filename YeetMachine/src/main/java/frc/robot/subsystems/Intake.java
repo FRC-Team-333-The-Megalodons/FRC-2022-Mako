@@ -72,6 +72,13 @@ public class Intake extends SubsystemBase {
   }
 
   public void runIntakeReverse(){
+    // If the catapult isn't down, don't allow the motors to run.
+    
+    if (!catapultLimitSwitch.shouldIgnoreLimitSwitch() && !catapultLimitSwitch.get()) {
+      // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
+      intakeMotor.set(0);
+      return;
+    }
     //intakeMotor.setInverted(true);
     intakeMotor.set(INTAKE_SPEED);
     //motor.set(-1);
@@ -82,15 +89,18 @@ public class Intake extends SubsystemBase {
   }
 
   public void extendIntake() {
-    intakeSols.set(Value.kForward);
+    intakeSols.set(Value.kReverse);
   }
 
   public void retractIntake() {
+    // Extending/retracting the intake no longer depend on the position of the catapult
+    /*
     if (!catapultLimitSwitch.shouldIgnoreLimitSwitch() && !catapultLimitSwitch.get()) {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
       return;
     }
-    intakeSols.set(Value.kReverse);
+    */
+    intakeSols.set(Value.kForward);
   }
 
   public void paintDashboard() {
