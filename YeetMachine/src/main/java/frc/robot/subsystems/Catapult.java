@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.dashboard.SmartDashboardWrapper;
+import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
 import frc.robot.utils.Constants;
 
 public class Catapult extends SubsystemBase {
@@ -33,20 +34,22 @@ public class Catapult extends SubsystemBase {
   Joystick joystick;
   XboxController controller;
   SmartDashboardWrapper dashboard;
-  LimitSwitch limitSwitch;
+  LimitSwitch catapultLimitSwitch;
+  TimedLimitSwitch intakeLimitSwitch;
   
   private final double YEETER_SPEED_DEFAULT = 1.0;
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 
-  NetworkTable table;;
+  NetworkTable table;
   NetworkTableEntry tx, ty, ta;
   double x, y, area;
   private boolean isShotReady = false;
   private final double HIGH_GOAL_SHOT_DISTANCE = 0.0;
 
-  public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
-    limitSwitch = limitSwitch_;
+  public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch catapultLimitSwitch_, TimedLimitSwitch intakeLimitSwitch_) {
+    catapultLimitSwitch = catapultLimitSwitch_;
+    intakeLimitSwitch = intakeLimitSwitch_;
     joystick = joystick_;
     controller = controller_;
     yeeter = new CANSparkMax(Constants.DeviceIDs.CATAPULT_ID,MotorType.kBrushless);
@@ -70,8 +73,8 @@ public class Catapult extends SubsystemBase {
   }
   
   public void paintDashboard() {
-    dashboard.putBoolean("Yeeter Down", limitSwitch.isPhysicalSwitchPressed());
-    dashboard.putBoolean("Manual Mode", limitSwitch.shouldIgnoreLimitSwitch());
+    dashboard.putBoolean("Yeeter Down", catapultLimitSwitch.isPhysicalSwitchPressed());
+    dashboard.putBoolean("Manual Mode", catapultLimitSwitch.shouldIgnoreLimitSwitch());
     dashboard.putBoolean("Shot Ready?", isShotReady);
   }
   
@@ -97,20 +100,33 @@ public class Catapult extends SubsystemBase {
     return (check1 == check2) == check3;
   }
 
-  public void autoPeriodic(boolean fire)
+  public void catapultPeriodic(boolean fire)
   {
-    if (limitSwitch.shouldIgnoreLimitSwitch()) {
+    /* MANUAL OVERRIDE MODE:
+       Ignore all limit switches, and ONLY run when fire true */
+    if (catapultLimitSwitch.shouldIgnoreLimitSwitch()) {
       if (fire) {
         pewpew();
       } else {
         nopewpew();
       }
+      return;
+    }
+
+    /* REGULAR OPERATING MODE (BOTH PERIODIC AND AUTONOMOUS):
+       Observe limit switches, and always try to bring the catapult to CATAPULT LIMIT SWITCH PRESSED State */
+    if (intakeLimitSwitch.get()) {
+      // If the intake is in, then no matter what we can't run.
+      nopewpew();
+      return;
+    }
+
+    if (catapultLimitSwitch.get(fire)) {
+      // If the catapult limitswitch is pressed, don't run (unless fire is true)
+      nopewpew();
     } else {
-      if (limitSwitch.get(fire)) {
-        nopewpew();
-      } else {
-        pewpew();
-      }
+      // If the catapult limitswitch is not pressed, run until it's pressed.
+      pewpew();
     }
   }
 
@@ -131,21 +147,7 @@ public class Catapult extends SubsystemBase {
 
     YEETER_SPEED = dashboard.getNumber(YEETER_SPEED_KEY, YEETER_SPEED_DEFAULT);
 
-    /* "Manual" behavior */
-    if (limitSwitch.shouldIgnoreLimitSwitch())
-    {
-      if(isFireButtonPressed()) {
-        pewpew();
-      }else{
-        nopewpew();
-      }
-    } else {
-      if(limitSwitch.get(isFireButtonPressed())) {
-        nopewpew();
-      }else {
-        pewpew();
-      }
-    }
+    catapultPeriodic(isFireButtonPressed());
 
     //read values periodically
     x = tx.getDouble(0.0);

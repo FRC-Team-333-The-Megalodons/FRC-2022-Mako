@@ -38,6 +38,7 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimitSwitch;
+import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
 import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants.AutoState;
 import frc.robot.utils.Constants;
@@ -59,8 +60,9 @@ public class RobotContainer {
   Climber climber;
   Joystick joystick;
   XboxController controller;
-  DigitalInput limitSwitch_device;
-  LimitSwitch limitSwitch;
+  DigitalInput catapultLimitSwitch_raw, intakeLimitSwitch_raw;
+  LimitSwitch catapultLimitSwitch;
+  TimedLimitSwitch intakeLimitSwitch;
   long autoInitTime;
   AutonStraightDrive autonStraightDrive;
   SmartDashboardWrapper dashboard;
@@ -70,12 +72,14 @@ public class RobotContainer {
     // Configure the button bindings
     joystick = new Joystick(Constants.DeviceIDs.JOYSTICK_PORT);
     controller = new XboxController(Constants.DeviceIDs.CONTROLLER_PORT);
-    limitSwitch_device = new DigitalInput(Constants.DeviceIDs.LIMIT_SWITCH);
-    limitSwitch = new LimitSwitch(joystick, limitSwitch_device);
+    catapultLimitSwitch_raw = new DigitalInput(Constants.DeviceIDs.CATAPULT_LIMIT_SWITCH);
+    catapultLimitSwitch = new LimitSwitch(joystick, catapultLimitSwitch_raw);
+    intakeLimitSwitch_raw = new DigitalInput(Constants.DeviceIDs.INTAKE_LIMIT_SWITCH);
+    intakeLimitSwitch = new TimedLimitSwitch(intakeLimitSwitch_raw);
     // Instantiate robot parts with shared classes
     chassis = new Chassis(joystick, controller);
-    intake = new Intake(joystick, controller, limitSwitch);
-    catapult = new Catapult(joystick, controller, limitSwitch);
+    intake = new Intake(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
+    catapult = new Catapult(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
     climber = new Climber(joystick, controller);
     autonStraightDrive = new AutonStraightDrive(chassis.getDiffDrive(), chassis.getNavX(), chassis.getDriveTrainEncoder());
     configureButtonBindings();
@@ -134,7 +138,7 @@ public class RobotContainer {
 
   final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
-  final int INTAKE_EXTEND_WAIT = 1500;
+  final int INTAKE_EXTEND_WAIT = 1000;
   final int FIRE_SHOT_WAIT = 3000;//1500;
   final int INTAKE_CARGO_WAIT = 1000;
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
@@ -178,8 +182,22 @@ public class RobotContainer {
         if (time_intake_extended == 0) {
           time_intake_extended = System.currentTimeMillis();
         }
+
+        // If we're in manual mode, then use time to figure this out. otherwise, use the limit switch.
+        boolean is_intake_actually_extended = false;
+        if (catapultLimitSwitch.shouldIgnoreLimitSwitch()) {
+          long elapsed = System.currentTimeMillis() - time_intake_extended;
+          is_intake_actually_extended = (elapsed > INTAKE_EXTEND_WAIT);
+        } else {
+          // Once the intakelimitswitch (which has a built-in-delay) is no longer pressed, it's safe to shoot
+          is_intake_actually_extended = !intakeLimitSwitch.get();
+        }
+        /*
         long elapsed = System.currentTimeMillis() - time_intake_extended;
         if (elapsed > INTAKE_EXTEND_WAIT) {
+        */
+        // Once the intakelimitswitch (which has a built-in-delay) is no longer pressed, it's safe to shoot
+        if (is_intake_actually_extended) { 
           TWO_BALL_STATE = AutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED;
           break;
         }
@@ -187,7 +205,7 @@ public class RobotContainer {
       }
       case AutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED: {
         intake.stopIntake();
-        catapult.autoPeriodic(true);
+        catapult.catapultPeriodic(true);
         if (time_first_shot_taken == 0) {
           time_first_shot_taken = System.currentTimeMillis();
         }
@@ -198,8 +216,8 @@ public class RobotContainer {
         break;
       }
       case AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
-        catapult.autoPeriodic(false);
-        if (limitSwitch.isPhysicalSwitchPressed()) {
+        catapult.catapultPeriodic(false);
+        if (catapultLimitSwitch.isPhysicalSwitchPressed()) {
           TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
           break;
         }
@@ -263,7 +281,7 @@ public class RobotContainer {
       case AutoState.AFTER_RETURN_TO_ORIGINAL_SPOT: {
         // At this point we can finally stop the intake.
         intake.stopIntake();
-        catapult.autoPeriodic(true);
+        catapult.catapultPeriodic(true);
         if (time_second_shot_taken == 0) {
           time_second_shot_taken = System.currentTimeMillis();
         }
@@ -287,7 +305,7 @@ public class RobotContainer {
           break;
         }
 
-        catapult.autoPeriodic(false);
+        catapult.catapultPeriodic(false);
         boolean arrived = autonStraightDrive.periodic(SECOND_TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
           TWO_BALL_STATE = AutoState.AUTO_DONE;
@@ -299,7 +317,7 @@ public class RobotContainer {
       case AutoState.AUTO_DONE:
       default: {
         // Continue on this until it's time for Teleop!
-        catapult.autoPeriodic(false);
+        catapult.catapultPeriodic(false);
         chassis.stop();
         intake.stopIntake();
 
@@ -412,6 +430,12 @@ public class RobotContainer {
     return ramseteCommand.andThen(() -> chassis.tankDriveVolts(0, 0));
   }
   */
+
+  public void passivePeriodic()
+  {
+    intakeLimitSwitch.update();
+    paintDashboard();
+  }
 
   public void paintDashboard()
   {

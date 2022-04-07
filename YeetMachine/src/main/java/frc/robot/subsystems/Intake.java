@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.dashboard.SmartDashboardWrapper;
+import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
 import frc.robot.utils.Constants;
 
 public class Intake extends SubsystemBase {
@@ -39,7 +40,8 @@ public class Intake extends SubsystemBase {
 
   DoubleSolenoid intakeSols;
   SmartDashboardWrapper dashboard;
-  LimitSwitch limitSwitch;
+  LimitSwitch catapultLimitSwitch;
+  TimedLimitSwitch intakeLimitSwitch;
 
   private final double NOMINAL_SPEED = 0.333;
   private final double INTAKE_SPEED_DEFAULT = 0.5;
@@ -50,10 +52,11 @@ public class Intake extends SubsystemBase {
   private double HOLDER_SPEED = HOLDER_SPEED_DEFAULT;
   private final String HOLDER_SPEED_KEY = "Holder Speed";
 
-  public Intake(Joystick joystick_, XboxController controller_, LimitSwitch limitSwitch_) {
+  public Intake(Joystick joystick_, XboxController controller_, LimitSwitch catapultLimitSwitch_, TimedLimitSwitch intakeLimitSwitch_) {
     joystick = joystick_;
     controller = controller_;
-    limitSwitch = limitSwitch_;
+    catapultLimitSwitch = catapultLimitSwitch_;
+    intakeLimitSwitch = intakeLimitSwitch_;
 
     intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushless);
     //intakeMotor.setInverted(false);
@@ -70,7 +73,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void runIntake(){
-    if (!limitSwitch.shouldIgnoreLimitSwitch() && !limitSwitch.get()) {
+    if (!catapultLimitSwitch.shouldIgnoreLimitSwitch() && !catapultLimitSwitch.get()) {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow intake.
       return;
     }
@@ -94,7 +97,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void retractIntake() {
-    if (!limitSwitch.shouldIgnoreLimitSwitch() && !limitSwitch.get()) {
+    if (!catapultLimitSwitch.shouldIgnoreLimitSwitch() && !catapultLimitSwitch.get()) {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow the Intake mechanism to be Retracted.
       return;
     }
@@ -162,6 +165,8 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    intakeLimitSwitch.update();
+
     INTAKE_SPEED = dashboard.getNumber(INTAKE_SPEED_KEY, INTAKE_SPEED_DEFAULT);
     HOLDER_SPEED = dashboard.getNumber(HOLDER_SPEED_KEY, HOLDER_SPEED_DEFAULT);
     // This method will be called once per scheduler run

@@ -56,7 +56,8 @@ public final class Constants {
         public static final int PNEUMATIC_HUB = 22;
 
         // Sensors
-        public static final int LIMIT_SWITCH = 0;
+        public static final int CATAPULT_LIMIT_SWITCH = 0;
+        public static final int INTAKE_LIMIT_SWITCH = 1;
 
     }
 

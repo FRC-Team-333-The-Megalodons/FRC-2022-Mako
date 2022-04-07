@@ -45,4 +45,41 @@ public class LimitSwitch {
   {
       return m_joystick.getThrottle() >= 0.7;
   }
+
+
+public static class TimedLimitSwitch
+{
+  private DigitalInput m_limitSwitch;
+  private long m_lastTriggerTime = 0;
+  private static final long TRAIL_TIME_MS = 500;
+
+  public TimedLimitSwitch(DigitalInput limitSwitch)
+  {
+    m_limitSwitch = limitSwitch;
+  }
+
+  public boolean isPhysicalLimitSwitchPressed()
+  {
+    return !m_limitSwitch.get();
+  }
+
+  public void update()
+  {
+    if (isPhysicalLimitSwitchPressed()) {
+      m_lastTriggerTime = System.currentTimeMillis();
+    }
+  }
+
+  public boolean get()
+  {
+    update();
+  
+    if (System.currentTimeMillis() - m_lastTriggerTime <= TRAIL_TIME_MS) {
+      return true;
+    }
+
+    return isPhysicalLimitSwitchPressed();
+  }
+}
+
 }
