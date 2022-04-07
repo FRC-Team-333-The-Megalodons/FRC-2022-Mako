@@ -51,7 +51,7 @@ public static class TimedLimitSwitch
 {
   private DigitalInput m_limitSwitch;
   private long m_lastTriggerTime = 0;
-  private static final long TRAIL_TIME_MS = 500;
+  private static final long TRAIL_TIME_MS = 1000;
 
   public TimedLimitSwitch(DigitalInput limitSwitch)
   {

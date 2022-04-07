@@ -4,25 +4,14 @@
 
 package frc.robot.subsystems;
 
-import javax.lang.model.element.Element;
-
-import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
@@ -146,8 +135,10 @@ public class Intake extends SubsystemBase {
   {
     if (Constants.twoDriverMode)
     {
-      
-      return controller.getBButton();
+      return controller.getBButton() || // Either of the original toggle buttons
+             controller.getXButton() || //  for extend/retract are now hold-to-extend.
+             // Anytime the driver presses the Fire button, the intake will Extend to get out of the way.
+             joystick.getRawButton(Constants.JoyStickButtons.CATAPULT); 
     }
     else
     {
@@ -157,6 +148,7 @@ public class Intake extends SubsystemBase {
 
   public boolean isRetractIntakeButtonPressed()
   {
+    /*
     if (Constants.twoDriverMode)
     {
       return controller.getXButton();
@@ -165,6 +157,8 @@ public class Intake extends SubsystemBase {
     {
       return joystick.getRawButton(Constants.JoyStickButtons.INTAKE_BACK);
     }
+    */
+    return false; // In press-and-hold style, there is no Retract button.
   }
 
   @Override
@@ -172,6 +166,9 @@ public class Intake extends SubsystemBase {
     INTAKE_SPEED = dashboard.getNumber(INTAKE_SPEED_KEY, INTAKE_SPEED_DEFAULT);
     HOLDER_SPEED = dashboard.getNumber(HOLDER_SPEED_KEY, HOLDER_SPEED_DEFAULT);
     // This method will be called once per scheduler run
+
+
+    // Press & hold mechanic for Intake Motors
     if(isIntakeButtonPressed()) {
       runIntake();
       //runHolder();
@@ -185,13 +182,12 @@ public class Intake extends SubsystemBase {
       //stopHolder();
     }
     
+    // Press & hold mechanic for Intake Motors
     if (isExtendIntakeButtonPressed()) {
       extendIntake();
       //System.out.println("intake sols forward");
-    } else if (isRetractIntakeButtonPressed()) {
+    } else {
       retractIntake();
-      //System.out.println("intake sols back"); 0
-      
     }
   }
 }

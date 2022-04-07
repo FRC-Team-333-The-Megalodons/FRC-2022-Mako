@@ -136,19 +136,6 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "3,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Catapult::Shot Ready?",
-              "_title": "Catapult::Shot Ready?",
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
-            }
-          },
           "0,2": {
             "size": [
               1,
@@ -201,7 +188,7 @@
               "_title": "AutoMode"
             }
           },
-          "3,3": {
+          "3,2": {
             "size": [
               1,
               1
@@ -212,6 +199,17 @@
               "_title": "Intake::Intake In",
               "Colors/Color when true": "#7CFC00FF",
               "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "4,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/AutoSpeed",
+              "_title": "AutoSpeed"
             }
           }
         }
