@@ -192,11 +192,7 @@ public class RobotContainer {
           // Once the intakelimitswitch (which has a built-in-delay) is no longer pressed, it's safe to shoot
           is_intake_actually_extended = !intakeLimitSwitch.get();
         }
-        /*
-        long elapsed = System.currentTimeMillis() - time_intake_extended;
-        if (elapsed > INTAKE_EXTEND_WAIT) {
-        */
-        // Once the intakelimitswitch (which has a built-in-delay) is no longer pressed, it's safe to shoot
+
         if (is_intake_actually_extended) { 
           TWO_BALL_STATE = AutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED;
           break;
@@ -441,5 +437,6 @@ public class RobotContainer {
   {
     chassis.paintDashboard();
     catapult.paintDashboard();
+    intake.paintDashboard();
   }
 }

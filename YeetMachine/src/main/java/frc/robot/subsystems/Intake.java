@@ -104,6 +104,10 @@ public class Intake extends SubsystemBase {
     intakeSols.set(Value.kReverse);
   }
 
+  public void paintDashboard() {
+    dashboard.putBoolean("Intake In", intakeLimitSwitch.get());
+  }
+  
   public void intakeNominalSpeed() {
     intakeMotor.set(NOMINAL_SPEED);
   }
@@ -165,8 +169,6 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    intakeLimitSwitch.update();
-
     INTAKE_SPEED = dashboard.getNumber(INTAKE_SPEED_KEY, INTAKE_SPEED_DEFAULT);
     HOLDER_SPEED = dashboard.getNumber(HOLDER_SPEED_KEY, HOLDER_SPEED_DEFAULT);
     // This method will be called once per scheduler run

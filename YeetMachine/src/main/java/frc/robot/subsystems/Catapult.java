@@ -44,8 +44,6 @@ public class Catapult extends SubsystemBase {
   NetworkTable table;
   NetworkTableEntry tx, ty, ta;
   double x, y, area;
-  private boolean isShotReady = false;
-  private final double HIGH_GOAL_SHOT_DISTANCE = 0.0;
 
   public Catapult(Joystick joystick_, XboxController controller_, LimitSwitch catapultLimitSwitch_, TimedLimitSwitch intakeLimitSwitch_) {
     catapultLimitSwitch = catapultLimitSwitch_;
@@ -73,9 +71,8 @@ public class Catapult extends SubsystemBase {
   }
   
   public void paintDashboard() {
-    dashboard.putBoolean("Yeeter Down", catapultLimitSwitch.isPhysicalSwitchPressed());
+    dashboard.putBoolean("Yeeter Down", catapultLimitSwitch.get());
     dashboard.putBoolean("Manual Mode", catapultLimitSwitch.shouldIgnoreLimitSwitch());
-    dashboard.putBoolean("Shot Ready?", isShotReady);
   }
   
   public boolean isFireButtonPressed() {
@@ -115,10 +112,11 @@ public class Catapult extends SubsystemBase {
 
     /* REGULAR OPERATING MODE (BOTH PERIODIC AND AUTONOMOUS):
        Observe limit switches, and always try to bring the catapult to CATAPULT LIMIT SWITCH PRESSED State */
+
+
+    // If the Intake is in , then force fire to 'false' no matter what (It's not safe to fire, but it is safe to bring the catapult down)
     if (intakeLimitSwitch.get()) {
-      // If the intake is in, then no matter what we can't run.
-      nopewpew();
-      return;
+      fire = false;
     }
 
     if (catapultLimitSwitch.get(fire)) {
@@ -154,9 +152,11 @@ public class Catapult extends SubsystemBase {
     y = ty.getDouble(0.0);
     area = ta.getDouble(0.0);
         
+    /*
     //post to smart dashboard periodically
     SmartDashboard.putNumber("LimelightX", x);
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
+    */
   }
 } 
