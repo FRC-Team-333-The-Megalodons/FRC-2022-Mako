@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -124,16 +123,17 @@ private static class History {
         return sum / m_history.size();
     }
 
+    /*
     public double getHistoryAverageWithSalt(double salt) {
         int size = 0;
         size = m_history.size();
         return (getHistoryAverage() * size + salt) / (size + 1);
     }
+    */
 
     public void clear() {
         m_history.clear();
     }
-
     
 
     private ArrayDeque<TimeEntry> m_history;

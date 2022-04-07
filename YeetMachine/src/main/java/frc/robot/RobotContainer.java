@@ -4,34 +4,14 @@
 
 package frc.robot;
 
-import java.sql.Driver;
 import java.util.ArrayList;
-import java.util.List;
 
-import javax.xml.catalog.Catalog;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
-import java.util.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.subsystems.Catapult;
 import frc.robot.subsystems.Chassis;
@@ -39,7 +19,6 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimitSwitch;
 import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
-import frc.robot.utils.Constants.JoyStickButtons;
 import frc.robot.utils.Constants.AutoState;
 import frc.robot.utils.Constants;
 import frc.robot.utils.RobotUtils.AutoOption;

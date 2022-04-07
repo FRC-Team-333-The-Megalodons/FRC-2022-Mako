@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.time.chrono.MinguoEra;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -13,16 +11,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.dashboard.SmartDashboardWrapper;
 import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
 import frc.robot.utils.Constants;
@@ -37,7 +28,7 @@ public class Catapult extends SubsystemBase {
   LimitSwitch catapultLimitSwitch;
   TimedLimitSwitch intakeLimitSwitch;
   
-  private final double YEETER_SPEED_DEFAULT = 1.0;
+  private final double YEETER_SPEED_DEFAULT = 0.5;
   private double YEETER_SPEED = YEETER_SPEED_DEFAULT;
   private final String YEETER_SPEED_KEY = "Yeeter Speed";
 

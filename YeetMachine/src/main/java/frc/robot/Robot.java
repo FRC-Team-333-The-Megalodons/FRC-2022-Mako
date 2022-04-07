@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     m_robotContainer.robotInit();
     try {
-      UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+      UsbCamera camera = CameraServer.startAutomaticCapture();
       camera.setResolution(160, 120);
     } catch (Exception e) {
       DriverStation.reportError("Could not start camera\n", false);
