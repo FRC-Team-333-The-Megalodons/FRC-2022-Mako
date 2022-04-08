@@ -238,7 +238,7 @@ public class Chassis extends SubsystemBase {
 
     odometry.update(navx.getAHRS().getRotation2d(), leftLeaderEnc.getPosition(), rightLeaderEnc.getPosition());
     
-    arcadeDrive(joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
+    arcadeDrive(-joystick.getX(), -joystick.getY());//joystick.getX(), -joystick.getY()
 
 
     if(joystick.getRawButton(Constants.JoyStickButtons.LOW_GEAR) ||

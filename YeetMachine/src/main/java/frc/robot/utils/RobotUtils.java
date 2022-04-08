@@ -194,7 +194,7 @@ public static class AutonStraightDrive {
 
         //speed *= -1;
         //double rotation = 0;
-        double rotation = -1 * m_gyro.getAngle(false) * m_gyro.getMultiplier();
+        double rotation = /*-1 *  */ m_gyro.getAngle(false) * m_gyro.getMultiplier();
         SmartDashboard.putNumber("AutoSpeed", speed);
         SmartDashboard.putNumber("AutoRotation", rotation);
         m_drive.arcadeDrive(rotation, speed);
