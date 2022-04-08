@@ -211,6 +211,28 @@
               "_source0": "network_table:///SmartDashboard/AutoSpeed",
               "_title": "AutoSpeed"
             }
+          },
+          "2,4": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Climber::LeftClimber",
+              "_title": "Climber::LeftClimber"
+            }
+          },
+          "3,4": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Climber::RightClimber",
+              "_title": "Climber::RightClimber"
+            }
           }
         }
       }

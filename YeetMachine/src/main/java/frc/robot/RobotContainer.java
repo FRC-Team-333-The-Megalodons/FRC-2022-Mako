@@ -59,7 +59,7 @@ public class RobotContainer {
     chassis = new Chassis(joystick, controller);
     intake = new Intake(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
     catapult = new Catapult(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
-    climber = new Climber(joystick, controller);
+    climber = new Climber(joystick, controller, catapultLimitSwitch);
     autonStraightDrive = new AutonStraightDrive(chassis.getDiffDrive(), chassis.getNavX(), chassis.getDriveTrainEncoder());
     configureButtonBindings();
     autoInitTime = 0;
@@ -81,7 +81,7 @@ public class RobotContainer {
     ArrayList<ComboBoxItem> autoList = new ArrayList<ComboBoxItem>();
     autoList.add(new ComboBoxItem("Do nothing", new AutoOption(AutoState.AUTO_DONE, AutoState.AUTO_DONE)));
     autoList.add(new ComboBoxItem("Shoot only", new AutoOption(AutoState.INITIAL, AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN)));
-    autoList.add(new ComboBoxItem("Taxi only", new AutoOption(AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN, AutoState.AFTER_INTAKE_SECOND_CARGO)));
+    autoList.add(new ComboBoxItem("Taxi only", new AutoOption(AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN, AutoState.AFTER_INTAKE_SECOND_CARGO)));
     autoList.add(new ComboBoxItem("Shoot, Taxi & Intake", new AutoOption(AutoState.INITIAL, AutoState.AFTER_INTAKE_SECOND_CARGO)));
     autoList.add(new ComboBoxItem("Full Two-ball Auto", new AutoOption(AutoState.INITIAL, AutoState.AUTO_DONE)));
     dashboard.createAutoPicker(autoList);
@@ -96,6 +96,7 @@ public class RobotContainer {
   public void teleopInit()
   {
     resetEncoders();
+    climber.teleopInit();
   }
 
   public void teleopPeriodic()
@@ -118,7 +119,7 @@ public class RobotContainer {
   final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
   final double MAX_TAXI_SPEED = 0.5;
   final int INTAKE_EXTEND_WAIT = 1000;
-  final int FIRE_SHOT_WAIT = 3000;//1500;
+  final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
   final double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 1.25;
@@ -153,11 +154,13 @@ public class RobotContainer {
       TWO_BALL_STATE = AutoState.AUTO_DONE;
     }
     
+    // No matter what, in auto, always have the intake extended.
+    intake.extendIntake();
 
     switch (TWO_BALL_STATE) {
+      
       case AutoState.INITIAL: {
         intake.runIntake();
-        intake.extendIntake();
         if (time_intake_extended == 0) {
           time_intake_extended = System.currentTimeMillis();
         }
@@ -184,6 +187,8 @@ public class RobotContainer {
         if (time_first_shot_taken == 0) {
           time_first_shot_taken = System.currentTimeMillis();
         }
+        // This delay is to account for the time required to run the choochoo
+        //  before the actually shot itself happens.
         long elapsed = System.currentTimeMillis() - time_first_shot_taken;
         if (elapsed > FIRE_SHOT_WAIT) {
           TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN;
@@ -417,5 +422,6 @@ public class RobotContainer {
     chassis.paintDashboard();
     catapult.paintDashboard();
     intake.paintDashboard();
+    climber.paintDashboard();
   }
 }
