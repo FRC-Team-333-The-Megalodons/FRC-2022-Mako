@@ -33,8 +33,8 @@ public class Climber extends SubsystemBase {
   private final double RIGHT_CLIMB_SPEED = CLIMB_SPEED;
   private final double LEFT_CLIMBER_LIMIT = -200.0;
   private final double RIGHT_CLIMBER_LIMIT = 200.0;
-  private final double LEFT_CLIMB_LOWER_LIMIT = -15.0;
-  private final double RIGHT_CLIMB_LOWER_LIMIT = 15.0;
+  //private final double LEFT_CLIMB_LOWER_LIMIT = -15.0;
+  //private final double RIGHT_CLIMB_LOWER_LIMIT = 15.0;
   private boolean climberAutomaticMode = false;
 
   /** Creates a new Climber. */
@@ -124,6 +124,8 @@ public class Climber extends SubsystemBase {
     // Invert both for "down".
     double left_speed = -1 * LEFT_CLIMB_SPEED;
     double right_speed = -1 * RIGHT_CLIMB_SPEED; 
+    
+    /*
     if (climberAutomaticMode && hasReachedLimit(left_speed, leftClimber.getEncoder().getPosition(), LEFT_CLIMB_LOWER_LIMIT))
     {
       leftClimber.set(0);
@@ -137,6 +139,10 @@ public class Climber extends SubsystemBase {
     } else {
       rightClimber.set(right_speed);
     }
+    */
+    
+    leftClimber.set(left_speed);
+    rightClimber.set(right_speed);
   }
 
   public void stopClimb() {

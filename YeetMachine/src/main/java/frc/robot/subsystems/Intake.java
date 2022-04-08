@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
     intakeLimitSwitch = intakeLimitSwitch_;
 
     intakeMotor = new CANSparkMax(Constants.DeviceIDs.INTAKE_MOTOR_ID,MotorType.kBrushless);
-    //intakeMotor.setInverted(false);
+    intakeMotor.setInverted(true);
 
     //intakSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.DeviceIDs.INTAKE_SOLENOID);
 

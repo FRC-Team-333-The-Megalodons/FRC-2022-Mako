@@ -85,6 +85,8 @@ public class RobotContainer {
     autoList.add(new ComboBoxItem("Shoot, Taxi & Intake", new AutoOption(AutoState.INITIAL, AutoState.AFTER_INTAKE_SECOND_CARGO)));
     autoList.add(new ComboBoxItem("Full Two-ball Auto", new AutoOption(AutoState.INITIAL, AutoState.AUTO_DONE)));
     dashboard.createAutoPicker(autoList);
+
+    dashboard.putNumber("TAXI_DISTANCE", DEFAULT_TAXI_DISTANCE);
   }
 
   /**
@@ -116,19 +118,24 @@ public class RobotContainer {
   long time_return_taxi_begin = 0;
   long time_second_taxi_begin = 0;
 
-  final double TAXI_DISTANCE = 1.5; // in meters (hopefully)
+  final double DEFAULT_TAXI_DISTANCE = 1.8; // in meters (hopefully)
+  double TAXI_DISTANCE = DEFAULT_TAXI_DISTANCE;
   final double MAX_TAXI_SPEED = 0.5;
   final int INTAKE_EXTEND_WAIT = 1000;
   final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
-  final double RETURN_DISTANCE = -TAXI_DISTANCE;
-  final double SECOND_TAXI_DISTANCE = 1.25;
+  double RETURN_DISTANCE = -TAXI_DISTANCE;
+  final double SECOND_TAXI_DISTANCE = 1.5;
 
   final long TAXI_TIME_HARD_STOP = 5000;
   int TWO_BALL_STATE = AutoState.UNSPECIFIED;
 
   public void autonomousInit()
   {
+    DriverStation.reportWarning("AUTONOMOUS_INIT", false);
+    TAXI_DISTANCE = dashboard.getNumber("TAXI_DISTANCE", DEFAULT_TAXI_DISTANCE);
+    RETURN_DISTANCE = -TAXI_DISTANCE;
+    DriverStation.reportWarning("Auto Taxi Distance = " + TAXI_DISTANCE, false);
     // THis begins at the "start state" from the selected dashboard option.
     TWO_BALL_STATE = dashboard.getAutoSelection().start_state;
     

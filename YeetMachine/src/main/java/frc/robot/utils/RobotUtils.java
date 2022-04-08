@@ -163,7 +163,7 @@ public static class AutonStraightDrive {
     
     boolean fuzzyEquals(double a, double b)
     {
-        final double EPSILON = 0.05;
+        final double EPSILON = 0.15;
         return (Math.abs(a-b) < EPSILON);
     }
 
