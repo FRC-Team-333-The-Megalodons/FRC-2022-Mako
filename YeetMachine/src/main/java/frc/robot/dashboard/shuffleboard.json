@@ -233,6 +233,17 @@
               "_source0": "network_table:///SmartDashboard/Climber::RightClimber",
               "_title": "Climber::RightClimber"
             }
+          },
+          "2,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/RobotContainer::TAXI_DISTANCE",
+              "_title": "RobotContainer::TAXI_DISTANCE"
+            }
           }
         }
       }
