@@ -117,13 +117,15 @@ public class RobotContainer {
   long time_first_taxi_begin = 0;
   long time_return_taxi_begin = 0;
   long time_second_taxi_begin = 0;
+  long time_began_to_bring_down_catapult = 0;
 
   final double DEFAULT_TAXI_DISTANCE = 1.9; // in meters (hopefully)
   double TAXI_DISTANCE = DEFAULT_TAXI_DISTANCE;
   final double MAX_TAXI_SPEED = 0.5;
-  final int INTAKE_EXTEND_WAIT = 5000;
+  final int INTAKE_EXTEND_WAIT = 4000;
   final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
+  final int TIME_BRING_DOWN_CATAPULT_WAIT = 4000;
   double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 1.5;
   final double ADDITIONAL_INTAKE_POWER = 0.1; // Compensates for hitting the ball slowly
@@ -146,6 +148,7 @@ public class RobotContainer {
     autoDone = false;
     time_intake_extended = 0;
     time_first_shot_taken = 0;
+    time_began_to_bring_down_catapult = 0;
     time_intake_began_after_arrival = 0;
     time_second_shot_taken = 0;
     time_first_taxi_begin = 0; 
@@ -223,9 +226,19 @@ public class RobotContainer {
       }
       case AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
         catapult.catapultPeriodic(false);
+        if (time_began_to_bring_down_catapult == 0) {
+          time_began_to_bring_down_catapult = System.currentTimeMillis();
+        }
         if (catapultLimitSwitch.isPhysicalSwitchPressed()) {
           TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
-          break;
+        } else {
+          long elapsed_catapult_down = System.currentTimeMillis() - time_began_to_bring_down_catapult;
+          if (elapsed_catapult_down > TIME_BRING_DOWN_CATAPULT_WAIT) {
+            dontIntakeDuringAuto = true;
+            intake.stopIntake();
+            TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
+            TWO_BALL_STOP_STATE = AutoState.AFTER_INTAKE_SECOND_CARGO;
+          }
         }
         break;
       }
