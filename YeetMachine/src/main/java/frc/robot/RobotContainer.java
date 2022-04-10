@@ -118,7 +118,7 @@ public class RobotContainer {
   long time_return_taxi_begin = 0;
   long time_second_taxi_begin = 0;
 
-  final double DEFAULT_TAXI_DISTANCE = 1.8; // in meters (hopefully)
+  final double DEFAULT_TAXI_DISTANCE = 1.9; // in meters (hopefully)
   double TAXI_DISTANCE = DEFAULT_TAXI_DISTANCE;
   final double MAX_TAXI_SPEED = 0.5;
   final int INTAKE_EXTEND_WAIT = 1000;
@@ -126,6 +126,7 @@ public class RobotContainer {
   final int INTAKE_CARGO_WAIT = 1000;
   double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 1.5;
+  final double ADDITIONAL_INTAKE_POWER = 0.1; // Compensates for hitting the ball slowly
 
   final long TAXI_TIME_HARD_STOP = 5000;
   int TWO_BALL_STATE = AutoState.UNSPECIFIED;
@@ -224,7 +225,7 @@ public class RobotContainer {
           break;
         }
 
-        intake.runIntake();
+        intake.runIntake(ADDITIONAL_INTAKE_POWER);
         
         boolean arrived = autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
@@ -242,7 +243,7 @@ public class RobotContainer {
         break;
       }
       case AutoState.AFTER_INTAKE_SECOND_CARGO: {
-        intake.runIntake(); // Keep running the intake - we don't want to lose it,
+        intake.runIntake(ADDITIONAL_INTAKE_POWER); // Keep running the intake - we don't want to lose it,
                             // and we might not even fully have it in the claw yet!
 
         if (time_return_taxi_begin == 0) {
@@ -274,7 +275,8 @@ public class RobotContainer {
         }
         long elapsed = System.currentTimeMillis() - time_second_shot_taken;
         if (elapsed > FIRE_SHOT_WAIT) {
-          TWO_BALL_STATE = AutoState.AFTER_SECOND_SHOT;
+          TWO_BALL_STATE = AutoState.AUTO_DONE;
+          //TWO_BALL_STATE = AutoState.AFTER_SECOND_SHOT;
           break;
         }
         break;

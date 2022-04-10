@@ -33,7 +33,7 @@ public class Intake extends SubsystemBase {
   TimedLimitSwitch intakeLimitSwitch;
 
   private final double NOMINAL_SPEED = 0.333;
-  private final double INTAKE_SPEED_DEFAULT = 0.5;
+  private final double INTAKE_SPEED_DEFAULT = 0.55;
   private double INTAKE_SPEED = INTAKE_SPEED_DEFAULT;
   private final String INTAKE_SPEED_KEY = "Intake Speed";
 
@@ -61,13 +61,19 @@ public class Intake extends SubsystemBase {
     dashboard.putNumber(HOLDER_SPEED_KEY, HOLDER_SPEED);
   }
 
-  public void runIntake(){
+  public void runIntake()
+  {
+    runIntake(0.0);
+  }
+
+  public void runIntake(double delta){
     if (!catapultLimitSwitch.shouldIgnoreLimitSwitch() && !catapultLimitSwitch.get()) {
       // If the limit switch is not pressed (i.e. the Catapult is not down), then don't allow intake.
       return;
     }
+    double speed = (-INTAKE_SPEED) - delta;
     //intakeMotor.setInverted(false);
-    intakeMotor.set(-INTAKE_SPEED);
+    intakeMotor.set(speed);
     //intakSolenoid.set(true);
   }
 
