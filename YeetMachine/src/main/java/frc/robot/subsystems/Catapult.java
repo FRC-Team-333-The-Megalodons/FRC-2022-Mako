@@ -63,6 +63,7 @@ public class Catapult extends SubsystemBase {
   
   public void paintDashboard() {
     dashboard.putBoolean("Yeeter Down", catapultLimitSwitch.get());
+    dashboard.putBoolean("YeeterDown RAW ", catapultLimitSwitch.isPhysicalSwitchPressed());
     dashboard.putBoolean("Manual Mode", catapultLimitSwitch.shouldIgnoreLimitSwitch());
   }
   
