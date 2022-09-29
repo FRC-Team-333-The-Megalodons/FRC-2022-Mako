@@ -117,19 +117,23 @@ public class RobotContainer {
   long time_first_taxi_begin = 0;
   long time_return_taxi_begin = 0;
   long time_second_taxi_begin = 0;
+  long time_began_to_bring_down_catapult = 0;
 
   final double DEFAULT_TAXI_DISTANCE = 1.9; // in meters (hopefully)
   double TAXI_DISTANCE = DEFAULT_TAXI_DISTANCE;
   final double MAX_TAXI_SPEED = 0.5;
-  final int INTAKE_EXTEND_WAIT = 1000;
+  final int INTAKE_EXTEND_WAIT = 4000;
   final int FIRE_SHOT_WAIT = 1500;
   final int INTAKE_CARGO_WAIT = 1000;
+  final int TIME_BRING_DOWN_CATAPULT_WAIT = 4000;
   double RETURN_DISTANCE = -TAXI_DISTANCE;
   final double SECOND_TAXI_DISTANCE = 1.5;
   final double ADDITIONAL_INTAKE_POWER = 0.1; // Compensates for hitting the ball slowly
 
   final long TAXI_TIME_HARD_STOP = 5000;
   int TWO_BALL_STATE = AutoState.UNSPECIFIED;
+  int TWO_BALL_STOP_STATE = AutoState.UNSPECIFIED;
+  boolean dontIntakeDuringAuto = false;
 
   public void autonomousInit()
   {
@@ -139,13 +143,15 @@ public class RobotContainer {
     DriverStation.reportWarning("Auto Taxi Distance = " + TAXI_DISTANCE, false);
     // THis begins at the "start state" from the selected dashboard option.
     TWO_BALL_STATE = dashboard.getAutoSelection().start_state;
-    
+    TWO_BALL_STOP_STATE = dashboard.getAutoSelection().stop_state;
+    dontIntakeDuringAuto = false;
     autoDone = false;
     time_intake_extended = 0;
     time_first_shot_taken = 0;
+    time_began_to_bring_down_catapult = 0;
     time_intake_began_after_arrival = 0;
     time_second_shot_taken = 0;
-    time_first_taxi_begin = 0;
+    time_first_taxi_begin = 0; 
     time_return_taxi_begin = 0;
     time_second_taxi_begin = 0;
     resetEncoders();
@@ -157,7 +163,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("AUTO_STATE", TWO_BALL_STATE);
 
     
-    if (dashboard.getAutoSelection().stop_state == TWO_BALL_STATE) {
+    if (TWO_BALL_STOP_STATE == TWO_BALL_STATE) {
       DriverStation.reportWarning("Hit AutoState End Condition due to Dashboard selection of "+TWO_BALL_STATE, false);
       TWO_BALL_STATE = AutoState.AUTO_DONE;
     }
@@ -173,19 +179,34 @@ public class RobotContainer {
           time_intake_extended = System.currentTimeMillis();
         }
 
+
         // If we're in manual mode, then use time to figure this out. otherwise, use the limit switch.
         boolean is_intake_actually_extended = false;
+        long wait_for_intake_extend_elapsed = System.currentTimeMillis() - time_intake_extended;
+        /*
         if (catapultLimitSwitch.shouldIgnoreLimitSwitch()) {
-          long elapsed = System.currentTimeMillis() - time_intake_extended;
           is_intake_actually_extended = (elapsed > INTAKE_EXTEND_WAIT);
         } else {
+        */
           // Once the intakelimitswitch (which has a built-in-delay) is no longer pressed, it's safe to shoot
           is_intake_actually_extended = !intakeLimitSwitch.get();
-        }
+        //}
+
+
+        
 
         if (is_intake_actually_extended) { 
           TWO_BALL_STATE = AutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED;
           break;
+        } else {
+          if (wait_for_intake_extend_elapsed > INTAKE_EXTEND_WAIT) {
+            // This means that we didn't actually extend. There's a mechanical problem. The best we can do is Taxi.
+            // Taxi only time!
+            TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN;
+            TWO_BALL_STOP_STATE = AutoState.AFTER_INTAKE_SECOND_CARGO;
+            dontIntakeDuringAuto = true;
+            intake.stopIntake();
+          }
         }
         break;
       }
@@ -205,9 +226,19 @@ public class RobotContainer {
       }
       case AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
         catapult.catapultPeriodic(false);
+        if (time_began_to_bring_down_catapult == 0) {
+          time_began_to_bring_down_catapult = System.currentTimeMillis();
+        }
         if (catapultLimitSwitch.isPhysicalSwitchPressed()) {
           TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
-          break;
+        } else {
+          long elapsed_catapult_down = System.currentTimeMillis() - time_began_to_bring_down_catapult;
+          if (elapsed_catapult_down > TIME_BRING_DOWN_CATAPULT_WAIT) {
+            dontIntakeDuringAuto = true;
+            intake.stopIntake();
+            TWO_BALL_STATE = AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN;
+            TWO_BALL_STOP_STATE = AutoState.AFTER_INTAKE_SECOND_CARGO;
+          }
         }
         break;
       }
@@ -225,7 +256,11 @@ public class RobotContainer {
           break;
         }
 
-        intake.runIntake(ADDITIONAL_INTAKE_POWER);
+        if (dontIntakeDuringAuto) {
+          intake.stopIntake();
+        } else {
+          intake.runIntake(ADDITIONAL_INTAKE_POWER);
+        } 
         
         boolean arrived = autonStraightDrive.periodic(TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
@@ -243,9 +278,12 @@ public class RobotContainer {
         break;
       }
       case AutoState.AFTER_INTAKE_SECOND_CARGO: {
-        intake.runIntake(ADDITIONAL_INTAKE_POWER); // Keep running the intake - we don't want to lose it,
+        if (dontIntakeDuringAuto) {
+          intake.stopIntake();
+        } else {
+          intake.runIntake(ADDITIONAL_INTAKE_POWER); // Keep running the intake - we don't want to lose it,
                             // and we might not even fully have it in the claw yet!
-
+        }
         if (time_return_taxi_begin == 0) {
           time_return_taxi_begin = System.currentTimeMillis();
         }
