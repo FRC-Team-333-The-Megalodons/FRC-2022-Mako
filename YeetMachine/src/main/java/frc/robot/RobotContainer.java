@@ -35,7 +35,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   Chassis chassis;
   Intake intake;
-  Catapult catapult;
+  //Catapult catapult;
   Climber climber;
   Joystick joystick;
   XboxController controller;
@@ -58,7 +58,7 @@ public class RobotContainer {
     // Instantiate robot parts with shared classes
     chassis = new Chassis(joystick, controller);
     intake = new Intake(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
-    catapult = new Catapult(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
+    //catapult = new Catapult(joystick, controller, catapultLimitSwitch, intakeLimitSwitch);
     climber = new Climber(joystick, controller, catapultLimitSwitch);
     autonStraightDrive = new AutonStraightDrive(chassis.getDiffDrive(), chassis.getNavX(), chassis.getDriveTrainEncoder());
     configureButtonBindings();
@@ -105,7 +105,7 @@ public class RobotContainer {
   {
     chassis.periodic();
     intake.periodic();
-    catapult.periodic();
+    //catapult.periodic();
     climber.periodic();
   }
 
@@ -212,7 +212,7 @@ public class RobotContainer {
       }
       case AutoState.BEFORE_FIRST_SHOT_INTAKE_EXTENDED: {
         intake.stopIntake();
-        catapult.catapultPeriodic(true);
+        //catapult.catapultPeriodic(true);
         if (time_first_shot_taken == 0) {
           time_first_shot_taken = System.currentTimeMillis();
         }
@@ -225,7 +225,7 @@ public class RobotContainer {
         break;
       }
       case AutoState.AFTER_FIRST_SHOT_BEFORE_CATAPULT_DOWN: {
-        catapult.catapultPeriodic(false);
+        //catapult.catapultPeriodic(false);
         if (time_began_to_bring_down_catapult == 0) {
           time_began_to_bring_down_catapult = System.currentTimeMillis();
         }
@@ -307,7 +307,7 @@ public class RobotContainer {
       case AutoState.AFTER_RETURN_TO_ORIGINAL_SPOT: {
         // At this point we can finally stop the intake.
         intake.stopIntake();
-        catapult.catapultPeriodic(true);
+        //catapult.catapultPeriodic(true);
         if (time_second_shot_taken == 0) {
           time_second_shot_taken = System.currentTimeMillis();
         }
@@ -332,7 +332,7 @@ public class RobotContainer {
           break;
         }
 
-        catapult.catapultPeriodic(false);
+        //catapult.catapultPeriodic(false);
         boolean arrived = autonStraightDrive.periodic(SECOND_TAXI_DISTANCE, MAX_TAXI_SPEED);
         if (arrived) {
           TWO_BALL_STATE = AutoState.AUTO_DONE;
@@ -344,7 +344,7 @@ public class RobotContainer {
       case AutoState.AUTO_DONE:
       default: {
         // Continue on this until it's time for Teleop!
-        catapult.catapultPeriodic(false);
+        //catapult.catapultPeriodic(false);
         chassis.stop();
         intake.stopIntake();
 
@@ -467,7 +467,7 @@ public class RobotContainer {
   public void paintDashboard()
   {
     chassis.paintDashboard();
-    catapult.paintDashboard();
+    //catapult.paintDashboard();
     intake.paintDashboard();
     climber.paintDashboard();
   }
