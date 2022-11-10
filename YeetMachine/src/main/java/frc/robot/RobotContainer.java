@@ -19,6 +19,9 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimitSwitch;
 import frc.robot.subsystems.LimitSwitch.TimedLimitSwitch;
+import frc.robot.subsystems.shooter.Hood;
+import frc.robot.subsystems.shooter.Indexer;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.utils.Constants.AutoState;
 import frc.robot.utils.Constants;
 import frc.robot.utils.RobotUtils.AutoOption;
@@ -45,6 +48,10 @@ public class RobotContainer {
   long autoInitTime;
   AutonStraightDrive autonStraightDrive;
   SmartDashboardWrapper dashboard;
+
+  Shooter shooter;
+  Indexer indexer;
+  Hood hood;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -78,6 +85,7 @@ public class RobotContainer {
 
   public void robotInit()
   {
+    hood.init();
     ArrayList<ComboBoxItem> autoList = new ArrayList<ComboBoxItem>();
     autoList.add(new ComboBoxItem("Do nothing", new AutoOption(AutoState.AUTO_DONE, AutoState.AUTO_DONE)));
     autoList.add(new ComboBoxItem("Shoot only", new AutoOption(AutoState.INITIAL, AutoState.AFTER_FIRST_SHOT_AFTER_CATAPULT_DOWN)));
@@ -107,6 +115,9 @@ public class RobotContainer {
     intake.periodic();
     //catapult.periodic();
     climber.periodic();
+    shooter.periodic();
+    hood.periodic();
+    indexer.periodic();
   }
 
   boolean autoDone = false;

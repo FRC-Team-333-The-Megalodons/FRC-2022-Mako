@@ -18,12 +18,12 @@ public class ShooterConstants {
         public final static double HOME = 0;
         public final static double FENDER = 0;
         public final static double TAXI = 0;
-        public final static double LAUNCHPAD = -34;
+        public final static double LAUNCHPAD = 34;
 
-        public final static double kP = .004;
-        public final static double kI = .001;
-        public final static double kD = .0002;
-        public final static double kILIM = 6;
+        public final static double kP = .005;
+        public final static double kI = .0001;
+        public final static double kD = 0;
+        public final static double kILIM = 4;
     }
 
     public static class IndexerConstants{

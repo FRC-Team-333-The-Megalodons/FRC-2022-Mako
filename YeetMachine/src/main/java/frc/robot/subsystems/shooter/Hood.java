@@ -25,6 +25,7 @@ public class Hood extends SubsystemBase {
     hoodNeo = new CANSparkMax(ShooterConstants.HoodConstants.hoodNeo,MotorType.kBrushless);
     hoodNeo.setIdleMode(IdleMode.kBrake);
     encoder = hoodNeo.getEncoder();
+    encoder.setInverted(true);
     //We still have no fixed design for this, however we will use one neo motor, Specifically the NEO 550. It is a brushless motor that will use a sparkMAX
     // i will take care of PID stuff, you define the class
   }
@@ -67,7 +68,6 @@ public class Hood extends SubsystemBase {
   public void setHome(){
     currentTime = Timer.getFPGATimestamp() - lastTimeStamp;
     if(Math.abs(error) < ShooterConstants.HoodConstants.kILIM && Math.abs(error) > 2){
-      System.out.println("**");
       errorSum += error + currentTime;
     }
 
