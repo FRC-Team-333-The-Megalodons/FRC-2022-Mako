@@ -103,6 +103,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
   */
 
+  public void disablePeriodic(){
+    hood.disabled();
+  }
+
   public void teleopInit()
   {
     resetEncoders();
